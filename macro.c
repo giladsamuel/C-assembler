@@ -9,7 +9,6 @@ int macroToTable(const char* fileName) {  /* TODO - change func name*/
     char line[MAX_LINE_LENGTH]; 
     char lineCopy[MAX_LINE_LENGTH];
     char *linePtr = line;  /* todo - delete?*/
-    int lineNumber;
     char *word = NULL;
     char *macroName = NULL;
     int macroFound;
@@ -33,9 +32,7 @@ int macroToTable(const char* fileName) {  /* TODO - change func name*/
     }
     free(asFileName);
     macroFound = 0;
-    lineNumber = 0;
     while (fgets(line, sizeof(line), asFile) != NULL) {
-        lineNumber++;
         strncpy(lineCopy, line, sizeof(lineCopy));
         word = strtok(lineCopy, " \t\n");
         if (word == NULL) {
@@ -52,18 +49,7 @@ int macroToTable(const char* fileName) {  /* TODO - change func name*/
             macroFound = 1;
 
             macroName = strtok(NULL, " \t\n");
-            if (macroName == NULL) {
-                fprintf(stderr, "Error: Line %d: Macro name is missing.\n", lineNumber);
-                exit(EXIT_FAILURE);  /* TODO - how to exit*/
-            }
-            if (inInMacroTable(macroName)) {
-                fprintf(stderr, "Error: Line %d: Macro name %s already exists.\n", lineNumber, macroName);
-                exit(EXIT_FAILURE);  /* TODO - how to exit*/
-            }
-            if (strtok(NULL, " \t\n") != NULL) {
-                fprintf(stderr, "Error: Line %d: Too many arguments for macro.\n", lineNumber);
-                exit(EXIT_FAILURE);  /* TODO - how to exit*/
-            }
+
 
             addMacroToTable(macroName);
             continue;
