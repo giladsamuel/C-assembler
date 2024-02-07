@@ -60,7 +60,7 @@ int macroToTable(const char* fileName) {  /* TODO - change func name*/
             } else {
 
                 if (addMacroLine(newMacroEntry, line) == NULL) {
-                    /* TODO - destroy hashTable*/
+                    freeTable(macroHashTable);
                     fclose(asFile);
                     fclose(amFile);
                     return 1;
@@ -74,7 +74,7 @@ int macroToTable(const char* fileName) {  /* TODO - change func name*/
 
     }
     printTableEntries(macroHashTable);  /* TODO - remove*/
-    /* TODO - destroy hashTable*/
+    freeTable(macroHashTable);
     fclose(asFile);
     fclose(amFile);
     return 0;

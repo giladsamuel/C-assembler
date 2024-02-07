@@ -66,32 +66,32 @@ Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name) {
     return NULL;
 }
 
+
 void printTableEntries(Entry *ht[TABLE_SIZE]) {
     int i;
     Entry *current;
     for (i = 0; i < TABLE_SIZE; i++) {
         current = ht[i];
         while (current != NULL) {
-            printf("Entry: %s, %d,\n %s\n", current->name, current->address, current->data);
+            printf("Entry: %s, %d,\n%s\n", current->name, current->address, current->data);
             current = current->next;
         }
     }
 }
-/* TODO - delete
-int main() {
-    HashTable ht;
-    memset(&ht, 0, sizeof(HashTable));
 
-    // Example usage
-    insert(&ht, "MACRO1", "Value1");
-    insert(&ht, "MACRO2", "Value2");
 
-    const char* value1 = get(&ht, "MACRO1");
-    const char* value2 = get(&ht, "MACRO2");
-
-    printf("Value1: %s\n", value1);
-    printf("Value2: %s\n", value2);
-
-    return 0;
+void freeTable(Entry *ht[TABLE_SIZE]) {
+    int i;
+    Entry *current = NULL;
+    Entry *next = NULL;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        current = ht[i];
+        while (current != NULL) {
+            next = current->next;
+            free(current->name);
+            free(current->data);
+            free(current);
+            current = next;
+        }
+    }
 }
-*/

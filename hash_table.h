@@ -21,5 +21,5 @@ typedef struct Entry {
 Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, int address, const char *data);
 Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name);
 void printTableEntries(Entry *ht[TABLE_SIZE]);
-/*void freeTable(Entry *ht[TABLE_SIZE]);  TODO - free table*/
+void freeTable(Entry *ht[TABLE_SIZE]);
 #endif
