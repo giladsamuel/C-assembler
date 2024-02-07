@@ -1,18 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "hashTable.h"
+#include "hash_table.h"
 
-/*#define INITIAL_TABLE_SIZE 104*/ /* TODO - hash table can grow*/
-#define TABLE_SIZE 104
-typedef struct MacroEntry {
-    char* mcrName;
-    char* mcrAddress;
-    char* mcrData;
-    struct MacroEntry* next;
-} MacroEntry;
 
-MacroEntry *hashTable[TABLE_SIZE] = {NULL};
+/* TODO - make privet*/
+unsigned int hashFunction(const char* key);
+Entry *createEntry(const char *name, int address, const char *data);
 
 
 unsigned int hashFunction(const char* key) {
@@ -24,36 +15,50 @@ unsigned int hashFunction(const char* key) {
     return hash % TABLE_SIZE;
 }
 
-MacroEntry* createMacroEntry(const char* key, const char* value) {
-    MacroEntry* newMacroEntry = (MacroEntry*)malloc(sizeof(MacroEntry));
-    newMacroEntry->key = strdup(key);
-    newMacroEntry->value = strdup(value);
-    newMacroEntry->next = NULL;
-    return newMacroEntry;
+
+Entry *createEntry(const char *name, int address, const char *data) {
+    Entry *newEntry = (Entry *)malloc(sizeof(Entry));
+    if (newEntry == NULL) {
+        fprintf(stderr, "Error: Memory allocation failed.\n");
+        exit(EXIT_FAILURE);  /* TODO - How to exit*/
+    }
+    newEntry->name = strdup(name);
+    newEntry->address = address;
+    if (data != NULL) {
+        newEntry->data = strdup(data);
+    } else {
+        newEntry->data = NULL;
+    }
+    newEntry->next = NULL;
+    return newEntry;
 }
 
-void insert(HashTable* ht, const char* key, const char* value) {
-    unsigned int index = hash(key);
-    Node* newNode = createNode(key, value);
 
-    if (ht->table[index] == NULL) {
-        ht->table[index] = newNode;
+Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, int address, const char *data) {
+    unsigned int index = hashFunction(name);
+    Entry *newEntry = createEntry(name, address, data);
+
+    if (ht[index] == NULL) {
+        ht[index] = newEntry;
     } else {
-        Node* current = ht->table[index];
+        Entry *current = ht[index];
         while (current->next != NULL) {
             current = current->next;
         }
-        current->next = newNode;
+        current->next = newEntry;
     }
+
+    return newEntry;
 }
 
-const char* get(HashTable* ht, const char* key) {
-    unsigned int index = hash(key);
-    Node* current = ht->table[index];
+
+Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name) {
+    unsigned int index = hashFunction(name);
+    Entry *current = ht[index];
 
     while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            return current->value;
+        if (strcmp(current->name, name) == 0) {
+            return current;
         }
         current = current->next;
     }
@@ -61,6 +66,18 @@ const char* get(HashTable* ht, const char* key) {
     return NULL;
 }
 
+void printTableEntries(Entry *ht[TABLE_SIZE]) {
+    int i;
+    Entry *current;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        current = ht[i];
+        while (current != NULL) {
+            printf("Entry: %s, %d,\n %s\n", current->name, current->address, current->data);
+            current = current->next;
+        }
+    }
+}
+/* TODO - delete
 int main() {
     HashTable ht;
     memset(&ht, 0, sizeof(HashTable));
@@ -77,3 +94,4 @@ int main() {
 
     return 0;
 }
+*/

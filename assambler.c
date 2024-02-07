@@ -11,7 +11,10 @@ int main(int argc, const char *argv[]) {
     }
     for (i = 1; i < argc; i++) {
         printf("Argument %d: %s\n", i, argv[i]);
-        macroToTable(argv[i]);
+        if (macroToTable(argv[i]) != 0) {
+            fprintf(stderr, "Error: Failed to convert macro file to table.\n"); /* TODO - change error*/
+            return EXIT_FAILURE;
+        }
     }
 
     return EXIT_SUCCESS;

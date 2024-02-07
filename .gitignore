@@ -1,1 +1,5 @@
 .vscode/*
+*.o
+assambler
+example_macro.as
+example_macro.am
