@@ -1,15 +1,15 @@
-#ifndef MACRO_H
-#define MACRO_H
+#ifndef PREPROCESSOR_H
+#define PREPROCESSOR_H
 
-#include <unistd.h>
-#include "str_helper.h"
 #include "hash_table.h"
+#include "str_helper.h"
+
 
 #define MAX_LINE_LENGTH 81 /* max line length including \n char*/
 
 /**
  * @return Returns an integer indicating the success or failure of the conversion.
  */
-int macroToTable(const char *fileName);
+int preprocessMacros(const char *fileName);
 
 #endif

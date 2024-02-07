@@ -1,8 +1,8 @@
-#include "macro.h"
+#include "preprocessor.h"
 
-char *addMacroLine(Entry *macroEntry, const char *line);
+char *addMacroLine(Entry *macroEntry, const char *line); /* TODO - make privet*/
 
-int macroToTable(const char* fileName) {  /* TODO - change func name*/
+int preprocessMacros(const char* fileName) {  /* TODO - change func name*/
     char * asFileName = NULL;
     char * amFileName = NULL;
     FILE *asFile = NULL;
