@@ -10,15 +10,25 @@
 
 /*#define INITIAL_TABLE_SIZE 104*/ /* TODO - hash table can grow*/
 #define TABLE_SIZE 104
+
+typedef enum {
+    NO_PROPERTY,
+    MDEFINE,
+    CODE
+} Property;
+
 typedef struct Entry {
     char* name;
-    int address;
+    Property property;
+    int value;
     char* data;
     struct Entry *next;
 } Entry;
 
 
-Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, int address, const char *data);
+
+
+Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, Property property, int value, const char *data);
 Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name);
 void printTableEntries(Entry *ht[TABLE_SIZE]);
 void freeTable(Entry *ht[TABLE_SIZE]);

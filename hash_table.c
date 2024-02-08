@@ -3,7 +3,7 @@
 
 /* TODO - make privet*/
 unsigned int hashFunction(const char* key);
-Entry *createEntry(const char *name, int address, const char *data);
+Entry *createEntry(const char *name, int property, int value, const char *data);
 
 
 unsigned int hashFunction(const char* key) {
@@ -16,14 +16,15 @@ unsigned int hashFunction(const char* key) {
 }
 
 
-Entry *createEntry(const char *name, int address, const char *data) {
+Entry *createEntry(const char *name, int property, int value, const char *data) {
     Entry *newEntry = (Entry *)malloc(sizeof(Entry));
     if (newEntry == NULL) {
         fprintf(stderr, "Error: Memory allocation failed.\n");
         exit(EXIT_FAILURE);  /* TODO - How to exit*/
     }
     newEntry->name = strdup(name);
-    newEntry->address = address;
+    newEntry->property = property;
+    newEntry->value = value;
     if (data != NULL) {
         newEntry->data = strdup(data);
     } else {
@@ -34,9 +35,9 @@ Entry *createEntry(const char *name, int address, const char *data) {
 }
 
 
-Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, int address, const char *data) {
+Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, Property property, int value, const char *data) {
     unsigned int index = hashFunction(name);
-    Entry *newEntry = createEntry(name, address, data);
+    Entry *newEntry = createEntry(name, property, value, data);
 
     if (ht[index] == NULL) {
         ht[index] = newEntry;
@@ -73,7 +74,7 @@ void printTableEntries(Entry *ht[TABLE_SIZE]) {
     for (i = 0; i < TABLE_SIZE; i++) {
         current = ht[i];
         while (current != NULL) {
-            printf("Entry: %s, %d,\n%s\n", current->name, current->address, current->data);
+            printf("Entry: %s, %d, %d,\n%s\n", current->name, current->property, current->value, current->data);
             current = current->next;
         }
     }

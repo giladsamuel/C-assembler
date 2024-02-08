@@ -1,8 +1,10 @@
 #include "preprocessor.h"
 
 char *addMacroLine(Entry *macroEntry, const char *line); /* TODO - make privet*/
+Entry *insertMacroEntry(Entry *ht[TABLE_SIZE], const char *name);
 
-int preprocessMacros(const char* fileName) {  /* TODO - change func name*/
+
+int preprocessMacros(const char* fileName) {
     char * asFileName = NULL;
     char * amFileName = NULL;
     FILE *asFile = NULL;
@@ -14,7 +16,7 @@ int preprocessMacros(const char* fileName) {  /* TODO - change func name*/
     Entry *macroHashTable[TABLE_SIZE] = {NULL};
     Entry *macroEntry = NULL;
     Entry *newMacroEntry = NULL;
-    int macroFound;
+    int macroFoundFlag;
 
     asFileName = crateJoinString(fileName, ".as");
     amFileName = crateJoinString(fileName, ".am");
@@ -35,11 +37,14 @@ int preprocessMacros(const char* fileName) {  /* TODO - change func name*/
     }
     free(asFileName);
 
-    macroFound = 0;
+    macroFoundFlag = 0;
     while (fgets(line, sizeof(line), asFile) != NULL) {
         strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(lineCopy, " \t\n");
-
+        if (firstWord == NULL) {
+            fputs(line, amFile);
+            continue;
+        }
         macroEntry = getEntry(macroHashTable, firstWord);
         if (macroEntry != NULL) {
             fputs(macroEntry->data, amFile);
@@ -47,15 +52,15 @@ int preprocessMacros(const char* fileName) {  /* TODO - change func name*/
         }
 
         if (strcmp(firstWord, "mcr") == 0) {
-            macroFound = 1;
+            macroFoundFlag = 1;
             macroName = strtok(NULL, " \t\n");
-            newMacroEntry = insertEntry(macroHashTable ,macroName, 0, NULL);
+            newMacroEntry = insertMacroEntry(macroHashTable ,macroName);
             continue;
         }
 
-        if (macroFound) {
+        if (macroFoundFlag) {
             if (strcmp(firstWord, "endmcr") == 0) {
-                macroFound = 0;
+                macroFoundFlag = 0;
                 newMacroEntry = NULL;
             } else {
 
@@ -96,3 +101,7 @@ char *addMacroLine(Entry *macroEntry, const char *line) {
     return macroEntry -> data;
 }
 
+
+Entry *insertMacroEntry(Entry *ht[TABLE_SIZE], const char *name) {
+    return insertEntry(ht, name, NO_PROPERTY, -1, NULL);
+}
