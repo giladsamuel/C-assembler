@@ -53,6 +53,11 @@ Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, Property property, i
 }
 
 
+Entry *insertSymbolEntry(Entry *ht[TABLE_SIZE], const char *name, int property, int value) {
+    return insertEntry(ht, name, property, value, NULL);
+}
+
+
 Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name) {
     unsigned int index = hashFunction(name);
     Entry *current = ht[index];

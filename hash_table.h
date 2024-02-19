@@ -32,7 +32,9 @@ typedef struct Entry {
 
 
 Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, Property property, int value, const char *data);
+Entry *insertSymbolEntry(Entry *ht[TABLE_SIZE], const char *name, int property, int value);
 Entry *getEntry(Entry *ht[TABLE_SIZE], const char *name);
 void printTableEntries(Entry *ht[TABLE_SIZE]);
 void freeTable(Entry *ht[TABLE_SIZE]);
+
 #endif
