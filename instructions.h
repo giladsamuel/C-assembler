@@ -34,6 +34,7 @@ typedef enum {
     HLT
 } InstructionType;
 
+int parseValidateInstruction(char *instructionName, char* sentence, int lineNumber);
 int identifyInstructionType(char *instructionName);
 int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber);
 int validateNumberOfOperandsAgainstInstructionType(InstructionType instructionType, int numberOfOperands, int lineNumber);

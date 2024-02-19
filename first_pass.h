@@ -26,7 +26,6 @@ int firstPass(const char* fileName);
 LineType identifyLineType(char *word);
 int parseValidateConstant(Entry *hashTable[], char *sentence, char **constantName, int *constantValue, int lineNumber);
 int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *sentence, int lineNumber, int *instructionCounter, int *dataCounter);
-int parseValidateInstruction(char *instructionName, char* sentence, int lineNumber);
 int validateLabel(Entry *hashTable[], const char *label, int lineNumber);
 void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset);
 

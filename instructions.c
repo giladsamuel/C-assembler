@@ -25,6 +25,35 @@ struct {
 		{HLT, 0, "", ""}}; 
 
 
+int parseValidateInstruction(char *instructionName, char* sentence, int lineNumber) {
+    InstructionType instructionType;
+    int numberOfOperands;
+    int sourceAddressingMode;
+    int destinationAddressingMode;
+    int numberOfWords;
+
+
+    instructionType = identifyInstructionType(instructionName);
+    if (instructionType == -1) {
+        printf("\nError in line %d: Invalid instruction name - '%s'\n", lineNumber, instructionName);
+        return -1;
+    }
+    numberOfOperands = validateInstructionCommaGetNumOfOperands(sentence, lineNumber);
+    if (numberOfOperands == -1) {
+        printf("Error: Invalid number of commas in instruction");
+        return -1;
+    }
+    if (!validateNumberOfOperandsAgainstInstructionType(instructionType, numberOfOperands, lineNumber)) {
+        return -1;
+    }
+    if (!validateInstructionOperands(instructionType, sentence, &sourceAddressingMode, &destinationAddressingMode, numberOfOperands, lineNumber)) {
+        return -1;
+    }
+    numberOfWords = getNumberOfWordsForInstruction(sourceAddressingMode, destinationAddressingMode, numberOfOperands);
+    return numberOfWords;
+}
+
+
 int identifyInstructionType(char *instructionName) {
     if (strcmp(instructionName, "mov") == 0) {
         return MOV;
