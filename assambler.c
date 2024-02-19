@@ -10,25 +10,31 @@
  *          4. make privet functions
  *          5. error handling
  *          6. change error printing to stdout instead of stderr
- * 
+ *          7. mange memory, free all memory allocation
+ *          8. change all error messages to be more informative
+ *          9. check that constant or label is not a reserved word
+ *          10.use switch 
  */ 
 
 int main(int argc, const char *argv[]) {
     int i;
     
     if (argc <= 1) {
-        fprintf(stderr, "No command line file name arguments provided.\n");
+        printf("No command line file name arguments provided.\n");
         return 1;
     }
     for (i = 1; i < argc; i++) {
         printf("Argument %d: %s\n", i, argv[i]);
         if (preprocessMacros(argv[i]) != 0) {
-            fprintf(stderr, "Error: Failed to convert macro file to table.\n"); /* TODO - change error*/
+            printf("Error: Failed to convert macro file to table.\n"); /* TODO - change error*/
             return EXIT_FAILURE;
         }
-        /*if (firstPass(argv[i]) != 0) {
-            fprintf(stderr, "Error: Failed to convert macro file to table.\n");  TODO - change error
-            return EXIT_FAILURE;
+        if (firstPass(argv[i]) == -1) {
+            printf("Errors in compiler's first pass.\n");
+            
+        }
+        /*if (secondPass(argv[i]) == -1) {
+            printf("Errors in compiler's second pass.\n");
         }*/
     }
 

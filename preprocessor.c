@@ -78,7 +78,7 @@ int preprocessMacros(const char* fileName) {
         }
 
     }
-    printTableEntries(macroHashTable);  /* TODO - remove*/
+    /*printTableEntries(macroHashTable);*/  /* TODO - remove*/
     freeTable(macroHashTable);
     fclose(asFile);
     fclose(amFile);

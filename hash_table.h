@@ -11,10 +11,13 @@
 /*#define INITIAL_TABLE_SIZE 104*/ /* TODO - hash table can grow*/
 #define TABLE_SIZE 104
 
-typedef enum {
+typedef enum PropertyType{
     NO_PROPERTY,
     MDEFINE,
-    CODE
+    CODE,
+    DATA_STRING,
+    ENTRANCE,
+    EXTERNAL
 } Property;
 
 typedef struct Entry {

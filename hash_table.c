@@ -9,7 +9,7 @@ Entry *createEntry(const char *name, int property, int value, const char *data);
 unsigned int hashFunction(const char* key) {
     int i;
     unsigned int hash = 0;
-    for (i = 0; i < strlen(key); i++) {
+     for (i = 0; i < strlen(key); i++) {
         hash = (hash * 31) + key[i];
     }
     return hash % TABLE_SIZE;
