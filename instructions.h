@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#define MEMORY_OFFSET 100
+
 enum {
     NO_OPERAND,
     ALL,

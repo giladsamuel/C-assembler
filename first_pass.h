@@ -42,5 +42,6 @@ int isValidName(Entry * hashTable[], const char *name);
 int isValidValue(const char *value);
 Entry *insertSymbolEntry(Entry *ht[TABLE_SIZE], const char *name, int property, int value);
 int validateLabel(Entry *hashTable[], const char *label, int lineNumber);
+void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset);
 
 #endif

@@ -14,6 +14,8 @@
  *          8. change all error messages to be more informative
  *          9. check that constant or label is not a reserved word
  *          10.use switch 
+ *          11.second pass check that all labels are defined
+ *          12. print the whole line in case of error
  */ 
 
 int main(int argc, const char *argv[]) {

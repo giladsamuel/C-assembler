@@ -88,6 +88,7 @@ int firstPass(const char* fileName) {
             continue;
         }
     }
+    updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
     printTableEntries(symbolHashTable);
     fclose(amFile);
     printf("Instruction counter: %d\n", instructionCounter);
@@ -199,7 +200,7 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *
         if (numberOfWords == -1) {
             printf("Error: Invalid instruction\n");
         } else {
-            insertSymbolEntry(symbolHashTable, labelName, CODE, *instructionCounter);
+            insertSymbolEntry(symbolHashTable, labelName, CODE, *instructionCounter + MEMORY_OFFSET);
             (*instructionCounter) += numberOfWords;
         }
         return numberOfWords;
@@ -446,5 +447,19 @@ int validateLabel(Entry *hashTable[], const char *label, int lineNumber) {
 }
 
 
+void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset) {
+    int i;
+    Entry *entry;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        entry = symbolHashTable[i];
+        while (entry != NULL) {
+            if (entry->property == DATA_STRING) {
+                entry->value += instructionOffset;
+            }
+            entry = entry->next;
+        }
+    }
+    
+}
 
 
