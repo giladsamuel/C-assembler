@@ -4,10 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ctype.h>
-#include "hash_table.h"
 
-struct Entry;
 
 /**
  * Creates a new string by joining two input strings.
@@ -27,9 +24,6 @@ char *crateJoinString(const char *str1, const char *str2);
  * @return The newly created string that is a duplicate of the input string. 
  */
 char *strdup(const char *str);
-
-int isValidName(struct Entry *hashTable[], const char *name);
-int isValidValue(const char *value);
 
 
 #endif

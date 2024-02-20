@@ -17,6 +17,9 @@
  *          10.use switch 
  *          11.second pass check that all labels are defined
  *          12. print the whole line in case of error
+ *          13. maybe .am file can pass from the preprocessor to first pass
+ *          14. change makefile recipe to use all .h files for each trans-unit
+ *          15. move insertMacro to hashTable to hashTable files.
  */ 
 
 int main(int argc, const char *argv[]) {

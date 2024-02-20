@@ -53,7 +53,7 @@ Entry *insertEntry(Entry *ht[TABLE_SIZE], const char *name, Property property, i
 }
 
 
-Entry *insertSymbolEntry(Entry *ht[TABLE_SIZE], const char *name, int property, int value) {
+Entry *insertSymbolEntExtEntry(Entry *ht[TABLE_SIZE], const char *name, int property, int value) {
     return insertEntry(ht, name, property, value, NULL);
 }
 

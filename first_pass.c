@@ -15,6 +15,7 @@ int firstPass(const char* fileName) {
     int constantValue;
     char *labelName = NULL;
     Entry *symbolHashTable[TABLE_SIZE] = {NULL};
+    Entry *entExtHashTable[TABLE_SIZE] = {NULL};
     int instructionCounter = 0;
     int dataCounter = 0;
     int lineNumber = 0;
@@ -26,7 +27,7 @@ int firstPass(const char* fileName) {
 
     amFile = fopen(amFileName, "r");
     if (amFile == NULL) {
-        fprintf(stderr, "Error: File %s could not be opened.\n", amFileName);
+        printf("Error: File %s could not be opened.\n", amFileName);
         free(amFileName);
         exit(EXIT_FAILURE);
     }
@@ -48,8 +49,8 @@ int firstPass(const char* fileName) {
         }
         if (firstWordType == CONSTANT) {
             sentence = strtok(NULL, "");
-            if (parseValidateConstant(symbolHashTable, sentence, &constantName, &constantValue, lineNumber)) {
-                insertSymbolEntry(symbolHashTable, constantName, MDEFINE, constantValue);
+            if (parseValidateConstant(symbolHashTable, entExtHashTable, sentence, &constantName, &constantValue, lineNumber)) {
+                insertSymbolEntExtEntry(symbolHashTable, constantName, MDEFINE, constantValue);
             } else {
                 firstPassErrFlag = -1;
             }
@@ -58,8 +59,8 @@ int firstPass(const char* fileName) {
         if (firstWordType == LABEL) {
             sentence = strtok(NULL, "");
             labelName = strtok(firstWord, ":");
-            if (!validateLabel(symbolHashTable, labelName, lineNumber) ||
-               -1 == parseValidateLabelSentence(symbolHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter)) 
+            if (!validateLabel(symbolHashTable, entExtHashTable, labelName, lineNumber) ||
+               -1 == parseValidateLabelSentence(symbolHashTable, entExtHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter)) 
             {
                 firstPassErrFlag = -1;
             }
@@ -68,7 +69,7 @@ int firstPass(const char* fileName) {
         if (firstWordType == DIRECTIVE) {
             directiveType = identifyDirectiveType(firstWord);
             sentence = strtok(NULL, "");
-            numberOfValues = parseValidateDirective(symbolHashTable, sentence, directiveType, lineNumber);
+            numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber);
             if (numberOfValues > 0) {
                 dataCounter += numberOfValues;  /* TODO - handel error*/
             } else if (numberOfValues == -1) {
@@ -88,11 +89,23 @@ int firstPass(const char* fileName) {
             continue;
         }
     }
+
+    if (firstPassErrFlag == -1) {
+        printf("\nErrors in first pass.\n");
+    }
+    secondPass(fileName, amFile, symbolHashTable, firstPassErrFlag);
     updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
+
+    printf("\nSymbol table:\n");
     printTableEntries(symbolHashTable);
+    printf("\nEntry/Extern table:\n");
+    printTableEntries(entExtHashTable);
+    printf("\nInstruction counter: %d\n", instructionCounter);
+    printf("\nData counter: %d\n", dataCounter);
+    freeTable(symbolHashTable);
+    freeTable(entExtHashTable);
     fclose(amFile);
-    printf("Instruction counter: %d\n", instructionCounter);
-    printf("Data counter: %d\n", dataCounter);
+
     return firstPassErrFlag;
 }
 
@@ -117,15 +130,16 @@ LineType identifyLineType(char *word) {
 }
 
 
-
-
-
-int parseValidateConstant(Entry *hashTable[], char *sentence, char **constantName, int *constantValue, int lineNumber) {
+int parseValidateConstant(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, char **constantName, int *constantValue, int lineNumber) {
     char *name = strtok(sentence, " \t\n");
     char *equalSign = strtok(NULL, " \t\n");
     char *value = strtok(NULL, " \t\n");
-    if (!isValidName(hashTable, name)) {
-        printf("\nError: Invalid constant name at line %d.\n", lineNumber);
+    if (!isValidName(symbolHashTable, name, lineNumber)) {
+        printf("Error: Invalid constant name.\n");
+        return 0;
+    }
+    if (getEntry(entExtHashTable, name) != NULL) {
+        printf("\nError in line %d: Constant '%s' already defined as entry or extern\n", lineNumber, name);
         return 0;
     }
     if (equalSign == NULL || *equalSign != '=' ) {
@@ -142,7 +156,7 @@ int parseValidateConstant(Entry *hashTable[], char *sentence, char **constantNam
 }
 
 
-int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *sentence, int lineNumber, int *instructionCounter, int *dataCounter) {
+int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[], char *labelName, char *sentence, int lineNumber, int *instructionCounter, int *dataCounter) {
     char *firstWord = NULL;
     LineType firstWordType;
     DirectiveType directiveType;
@@ -170,12 +184,12 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *
             printf("\nWarning in line %d: Label before entry or extern is meaningless\n", lineNumber);
         }
         sentence = strtok(NULL, "");
-        numberOfValues = parseValidateDirective(symbolHashTable, sentence, directiveType, lineNumber);
+        numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber);
         if (numberOfValues == -1) {
             printf("Invalid directive at line %d\n", lineNumber);
         }
         if (numberOfValues > 0) {
-            insertSymbolEntry(symbolHashTable, labelName, DATA_STRING, *dataCounter);
+            insertSymbolEntExtEntry(symbolHashTable, labelName, DATA_STRING, *dataCounter);
             (*dataCounter) += numberOfValues;
         }
         return numberOfValues;
@@ -186,7 +200,7 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *
         if (numberOfWords == -1) {
             printf("Error: Invalid instruction\n");
         } else {
-            insertSymbolEntry(symbolHashTable, labelName, CODE, *instructionCounter + MEMORY_OFFSET);
+            insertSymbolEntExtEntry(symbolHashTable, labelName, CODE, *instructionCounter + MEMORY_OFFSET);
             (*instructionCounter) += numberOfWords;
         }
         return numberOfWords;
@@ -195,20 +209,66 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], char *labelName, char *
 }
 
 
-
-
-
-
-
-
-
-
-
-
-int validateLabel(Entry *hashTable[], const char *label, int lineNumber) {
-    if (!isValidName(hashTable, label)) {
-        fprintf(stderr, "\nError: Invalid label at line %d.\n", lineNumber);
+int validateLabel(Entry *symbolHashTable[], Entry *entExtHashTable[], const char *label, int lineNumber) {
+    Entry *entry = NULL;
+    if (!isValidName(symbolHashTable, label, lineNumber)) {
+        printf("Error: Invalid label name.\n");
         return 0;
+    }
+    entry = getEntry(entExtHashTable, label);
+    if (entry != NULL && entry->property == EXTERNAL) {
+        printf("\nError in line %d: Label '%s' is already defined as external.\n", lineNumber, label);
+        return 0;
+    }
+    return 1;
+}
+
+
+int isValidName(Entry *hashTable[], const char *name, int lineNumber) {
+    int i;
+    Entry *entry = NULL;
+    if (name == NULL) {
+        return 0;
+    }
+    if (strlen(name) > 31) {
+        printf("\nError in line %d: Name '%s' is too long.\n", lineNumber, name);
+        return 0;
+    }
+    if (!isalpha(name[0])) {
+        printf("\nError in line %d: Name '%s' must start with a letter.\n", lineNumber, name);
+        return 0;
+    }
+    for (i = 1; i < strlen(name); i++) {
+        if (!isalnum(name[i])) {
+            printf("\nError in line %d: Name '%s' must contain only letters and digits.\n", lineNumber, name);
+            return 0;
+        }
+    }
+    entry = getEntry(hashTable, name);
+    if (entry != NULL) {
+            printf("\nError in line %d: Name '%s' is already defined.\n", lineNumber, name);
+            return 0;
+        }
+
+    return 1;
+}
+
+
+int isValidValue(const char *value) {
+    int i;
+    if (value == NULL) {
+        return 0;
+    }
+    if (value[0] == '-' || value[0] == '+') {
+        i = 1;
+    } else {
+        i = 0;
+    }
+    for (; i < strlen(value); i++) {
+        if (!isdigit(value[i])) {
+            printf("\nError: Value %s must contain only digits.\n", value);
+            return 0;
+        }
     }
     return 1;
 }
@@ -216,7 +276,7 @@ int validateLabel(Entry *hashTable[], const char *label, int lineNumber) {
 
 void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset) {
     int i;
-    Entry *entry;
+    Entry *entry = NULL;
     for (i = 0; i < TABLE_SIZE; i++) {
         entry = symbolHashTable[i];
         while (entry != NULL) {
@@ -228,5 +288,3 @@ void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset) {
     }
     
 }
-
-

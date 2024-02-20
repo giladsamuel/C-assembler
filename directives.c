@@ -17,8 +17,7 @@ DirectiveType identifyDirectiveType(char *directive) {
 }
 
 
-/* TODO - change if to if-else*/
-int parseValidateDirective(Entry *symbolHashTable[], char *sentence, DirectiveType directiveType, int lineNumber) {
+int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber) {
     int numberOfValues;
     if (directiveType == DATA) {
         numberOfValues = parseValidateDataDirective(symbolHashTable, sentence, lineNumber);
@@ -26,20 +25,20 @@ int parseValidateDirective(Entry *symbolHashTable[], char *sentence, DirectiveTy
             printf("Invalid data directive\n");
         }
     }
-    if (directiveType == STRING) {
+    else if (directiveType == STRING) {
         numberOfValues = parseValidateStringDirective(sentence, lineNumber);
         if (numberOfValues == -1) {
             printf("Invalid string directive\n");
         }
     }
-    if (directiveType == ENTRY) {  
-        numberOfValues = parseValidateInsertEntryExternDirective(symbolHashTable, sentence, lineNumber, ENTRANCE);
+    else if (directiveType == ENTRY) {  
+        numberOfValues = parseValidateInsertEntryExternDirective(symbolHashTable, entExtHashTable, sentence, lineNumber, ENTRANCE);
         if (numberOfValues == -1) {
             printf("Invalid entry directive\n");
         }
     }
-    if (directiveType == EXTERN) {
-        numberOfValues = parseValidateInsertEntryExternDirective(symbolHashTable, sentence, lineNumber, EXTERNAL);
+    else if (directiveType == EXTERN) {
+        numberOfValues = parseValidateInsertEntryExternDirective(symbolHashTable, entExtHashTable, sentence, lineNumber, EXTERNAL);
         if (numberOfValues == -1) {
             printf("Invalid extern directive\n");
         }
@@ -48,7 +47,7 @@ int parseValidateDirective(Entry *symbolHashTable[], char *sentence, DirectiveTy
 }
 
 
-int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber) {  /* TODO - move to str file */
+int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber) {
     int numberOfValues = 0;
     char *endptr = NULL;
     char temp;
@@ -142,18 +141,22 @@ int parseValidateStringDirective(char *sentence, int lineNumber) {
 }
 
 
-int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], char *sentence, int lineNumber, Property property) {
+int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, int lineNumber, Property myProperty) {
     char *name = strtok(sentence, " \t\n");
     if (name == NULL) {
         printf("\nError in line %d: Missing argument\n", lineNumber);
         return -1;
     }
     while (name != NULL) {
-        if (!isValidName(symbolHashTable, name)) {
-            printf("\nError in line %d: Invalid name\n", lineNumber);
+        if (!isValidName(entExtHashTable, name, lineNumber)) {
+            printf("Error: Invalid Entry/Extern name\n");
             return -1;
+        if (myProperty == EXTERNAL && getEntry(symbolHashTable, name) != NULL) {
+                printf("\nError in line %d: Extern '%s' already defined as symbol\n", lineNumber, name);
+                return -1;
+            }
         }
-        insertSymbolEntry(symbolHashTable, name, property, 0);
+        insertSymbolEntExtEntry(entExtHashTable, name, myProperty, 0);
         name = strtok(NULL, " \t\n");
     }
     return 0;
