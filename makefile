@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -g -ansi -pedantic -Wall
 
-assambler: assambler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o
-	$(CC) $(CFLAGS) assambler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o -o assambler
+assembler: assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o
+	$(CC) $(CFLAGS) assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o -o assembler
 
-assambler.o: assambler.c preprocessor.h hash_table.h str_helper.h
-	$(CC) -c $(CFLAGS) assambler.c -o assambler.o
+assembler.o: assembler.c preprocessor.h hash_table.h str_helper.h
+	$(CC) -c $(CFLAGS) assembler.c -o assembler.o
 
 preprocessor.o: preprocessor.c preprocessor.h str_helper.h hash_table.h
 	$(CC) -c $(CFLAGS)  preprocessor.c -o preprocessor.o
@@ -29,4 +29,4 @@ directives.o: directives.c directives.h
 	$(CC) -c $(CFLAGS) directives.c -o directives.o
 
 clean:
-	rm -f *.o assambler
+	rm -f *.o assembler
