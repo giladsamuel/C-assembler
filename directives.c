@@ -1,5 +1,6 @@
 #include "directives.h"
 
+
 DirectiveType identifyDirectiveType(char *directive) {
     if (strcmp(directive, ".data") == 0) {
         return DATA;
@@ -26,7 +27,7 @@ int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], c
         }
     }
     else if (directiveType == STRING) {
-        numberOfValues = parseValidateStringDirective(sentence, lineNumber);
+        numberOfValues = parseValidateStringDirective(sentence, lineNumber, dataCounter, dataWordsArray);
         if (numberOfValues == -1) {
             printf("Invalid string directive\n");
         }
@@ -101,7 +102,7 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
             printf("\nError: Memory allocation failed\n");
             return -1;
         }
-        dataToBinaryWord((int)value, dataWord);
+        valueToBinaryWord((int)value, dataWord);
         dataWordsArray[dataCounter + numberOfValues] = dataWord;
 
 
@@ -140,8 +141,12 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
 }
 
 
-int parseValidateStringDirective(char *sentence, int lineNumber) {
+int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]) {
+    int i;
     char *string = NULL;
+    int numberOfChars = 0;
+    char *dataWord = NULL;
+
     if (sentence == NULL) {
         printf("\nError in line %d: Missing argument\n", lineNumber);
         return -1;
@@ -155,7 +160,25 @@ int parseValidateStringDirective(char *sentence, int lineNumber) {
         printf("\nError in line %d: Missing closing quote\n", lineNumber);
         return -1;
     }
-    return strlen(string) - 1; /*num of char in string without quotes with null-terminator*/
+    numberOfChars = strlen(string) - 1;  /* Num of char in string without quotes with null-terminator*/
+    for (i = 1; i < numberOfChars; i++) {
+        dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+        if (dataWord == NULL) {
+            printf("\nError: Memory allocation failed\n");
+            return -1;
+        }
+        valueToBinaryWord((int)string[i], dataWord);
+        dataWordsArray[dataCounter + i - 1] = dataWord;
+    }
+    dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (dataWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+    valueToBinaryWord(0, dataWord); /* Null-terminator char*/
+    dataWordsArray[dataCounter + i - 1] = dataWord;
+
+    return numberOfChars;  /* Valid */
 }
 
 

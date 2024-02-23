@@ -1,16 +1,17 @@
 #include "binary_word.h"
 
-void dataToBinaryWord(int data, char binaryWord[WORD_SIZE + 1]) {
+
+void valueToBinaryWord(int value, char binaryWord[WORD_SIZE + 1]) {
     int i;
     int isNegative = 0;
     binaryWord[WORD_SIZE] = '\0';  /* Make word null terminated*/
-    if (data < 0) {
+    if (value < 0) {
         isNegative = 1;
-        data = -data;
+        value = -value;
     }
     for (i = WORD_SIZE - 1; i >= 0; i--) {
-        binaryWord[i] = (data % 2) + '0';
-        data /= 2;
+        binaryWord[i] = (value % 2) + '0';
+        value /= 2;
     }
     if (isNegative) {
         for (i = WORD_SIZE - 1; i >= 0; i--) {
@@ -27,16 +28,6 @@ void dataToBinaryWord(int data, char binaryWord[WORD_SIZE + 1]) {
     }
 }
 
-/*
-void stringToBinaryWords(char *string, char *binaryWord) {
-    int i;
-    for (i = 0; i < WORD_SIZE; i++) {
-        binaryWord[i] = '0';
-    }
-    for (i = 0; i < strlen(string); i++) {
-        charToBinaryWord(string[i], binaryWord + i * 8);
-    }
-}*/
 
 void printBinaryWordsArray(char *dataWordsArray[], int dataCounter) {
     int i;
@@ -44,6 +35,7 @@ void printBinaryWordsArray(char *dataWordsArray[], int dataCounter) {
         printf("%s\n", dataWordsArray[i]);
     }
 }
+
 
 void freeBinaryWordsArray(char *dataWordsArray[], int dataCounter) {
     int i;

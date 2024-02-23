@@ -1,7 +1,7 @@
 #include "first_pass.h"
 
 
-int firstPass(const char* fileName) {
+int firstPass(const char *fileName) {
     size_t len;
     char * amFileName = NULL;
     FILE *amFile = NULL;

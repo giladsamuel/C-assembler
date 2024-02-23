@@ -8,7 +8,7 @@
 #define MAX_VALUE 8191
 #define MIN_VALUE -8192
 
-void dataToBinaryWord(int data, char binaryWord[WORD_SIZE + 1]);
+void valueToBinaryWord(int value, char binaryWord[WORD_SIZE + 1]);
 
 void printBinaryWordsArray(char *dataWordsArray[], int dataCounter);
 void freeBinaryWordsArray(char *dataWordsArray[], int dataCounter);

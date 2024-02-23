@@ -5,3 +5,4 @@ example_macro.as
 example_macro.am
 test.as
 test.am
+compiler.h

@@ -16,7 +16,7 @@ typedef enum Directive{
 DirectiveType identifyDirectiveType(char *directive);
 int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber, int dataCounter, char *dataWordsArray[]);
 int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]);
-int parseValidateStringDirective(char *sentence, int lineNumber);
+int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]);
 int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, int lineNumber, Property property);
 
 #endif
