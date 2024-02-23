@@ -16,6 +16,8 @@ int firstPass(const char* fileName) {
     char *labelName = NULL;
     Entry *symbolHashTable[TABLE_SIZE] = {NULL};
     Entry *entExtHashTable[TABLE_SIZE] = {NULL};
+    /*char machineCodeWords[MAX_INSTRUCTIONS][WORD_SIZE + 1];*/  /* +1 for null terminator */
+    char *dataWordsArray[MAX_INSTRUCTIONS];  /* +1 for null terminator */
     int instructionCounter = 0;
     int dataCounter = 0;
     int lineNumber = 0;
@@ -54,13 +56,13 @@ int firstPass(const char* fileName) {
             } else {
                 firstPassErrFlag = -1;
             }
-            continue; /* TODO - error check not make file*/
+            continue;
         }
         if (firstWordType == LABEL) {
             sentence = strtok(NULL, "");
             labelName = strtok(firstWord, ":");
             if (!validateLabel(symbolHashTable, entExtHashTable, labelName, lineNumber) ||
-               -1 == parseValidateLabelSentence(symbolHashTable, entExtHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter)) 
+               -1 == parseValidateLabelSentence(symbolHashTable, entExtHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter, dataWordsArray)) 
             {
                 firstPassErrFlag = -1;
             }
@@ -69,10 +71,11 @@ int firstPass(const char* fileName) {
         if (firstWordType == DIRECTIVE) {
             directiveType = identifyDirectiveType(firstWord);
             sentence = strtok(NULL, "");
-            numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber);
+            numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber, dataCounter, dataWordsArray);
             if (numberOfValues > 0) {
-                dataCounter += numberOfValues;  /* TODO - handel error*/
+                dataCounter += numberOfValues;
             } else if (numberOfValues == -1) {
+                printf("Error: Invalid directive\n");
                 firstPassErrFlag = -1;
             }
             continue;
@@ -102,6 +105,9 @@ int firstPass(const char* fileName) {
     printTableEntries(entExtHashTable);
     printf("\nInstruction counter: %d\n", instructionCounter);
     printf("\nData counter: %d\n", dataCounter);
+    printf("\nData words:\n");
+    printBinaryWordsArray(dataWordsArray, dataCounter);
+    freeBinaryWordsArray(dataWordsArray, dataCounter);
     freeTable(symbolHashTable);
     freeTable(entExtHashTable);
     fclose(amFile);
@@ -156,7 +162,7 @@ int parseValidateConstant(Entry *symbolHashTable[], Entry *entExtHashTable[], ch
 }
 
 
-int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[], char *labelName, char *sentence, int lineNumber, int *instructionCounter, int *dataCounter) {
+int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[], char *labelName, char *sentence, int lineNumber, int *instructionCounter, int *dataCounter, char *dataWordsArray[]) {
     char *firstWord = NULL;
     LineType firstWordType;
     DirectiveType directiveType;
@@ -184,7 +190,7 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[
             printf("\nWarning in line %d: Label before entry or extern is meaningless\n", lineNumber);
         }
         sentence = strtok(NULL, "");
-        numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber);
+        numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber, *dataCounter, dataWordsArray);
         if (numberOfValues == -1) {
             printf("Invalid directive at line %d\n", lineNumber);
         }

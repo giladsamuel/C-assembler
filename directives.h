@@ -3,6 +3,7 @@
 
 #include "hash_table.h"
 #include "first_pass.h"
+#include "binary_word.h"
 
 typedef enum Directive{
     DATA,
@@ -13,8 +14,8 @@ typedef enum Directive{
 
 
 DirectiveType identifyDirectiveType(char *directive);
-int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber);
-int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber);
+int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber, int dataCounter, char *dataWordsArray[]);
+int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]);
 int parseValidateStringDirective(char *sentence, int lineNumber);
 int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, int lineNumber, Property property);
 

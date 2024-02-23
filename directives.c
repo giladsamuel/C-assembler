@@ -17,10 +17,10 @@ DirectiveType identifyDirectiveType(char *directive) {
 }
 
 
-int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber) {
-    int numberOfValues;
+int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber, int dataCounter, char *dataWordsArray[]) {
+    int numberOfValues = -1;
     if (directiveType == DATA) {
-        numberOfValues = parseValidateDataDirective(symbolHashTable, sentence, lineNumber);
+        numberOfValues = parseValidateDataDirective(symbolHashTable, sentence, lineNumber, dataCounter, dataWordsArray);
         if (numberOfValues == -1) {
             printf("Invalid data directive\n");
         }
@@ -47,11 +47,13 @@ int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], c
 }
 
 
-int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber) {
+int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]) {
     int numberOfValues = 0;
     char *endptr = NULL;
     char temp;
     Entry *symbol;
+    long int value;
+    char *dataWord = NULL;
 
     if (sentence == NULL) {
         printf("\nError in line %d: Missing argument\n", lineNumber);
@@ -71,8 +73,8 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
 
     while (*sentence != '\0' && *sentence != '\n') {
         /* Attempt to convert the next part to a double */
-        strtol(sentence, &endptr, 10);
-        numberOfValues++;
+        value = strtol(sentence, &endptr, 10);
+
         /* Check if conversion was unsuccessful */
         if (endptr == sentence) {
             while (*endptr != '\0' && *endptr != ',' && *endptr != ' ' && *endptr != '\t') {
@@ -86,8 +88,24 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
                 return -1; /* Invalid: Failed to convert to int */
             } else {
                 *endptr = temp;
+                value = symbol->value;
             }
         }
+
+        if (value < MIN_VALUE || value > MAX_VALUE) {
+            printf("\nError in line %d: Argument '%ld' is out of range\n", lineNumber, value);
+            return -1; /* Invalid: Out of range */
+        }
+        dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+        if (dataWord == NULL) {
+            printf("\nError: Memory allocation failed\n");
+            return -1;
+        }
+        dataToBinaryWord((int)value, dataWord);
+        dataWordsArray[dataCounter + numberOfValues] = dataWord;
+
+
+        numberOfValues++;
 
         /* Skip trailing whitespace after the int */
         sentence = endptr;
