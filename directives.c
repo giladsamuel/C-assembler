@@ -52,7 +52,7 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
     int numberOfValues = 0;
     char *endptr = NULL;
     char temp;
-    Entry *symbol;
+    Entry *symbol = NULL;
     long int value;
     char *dataWord = NULL;
 
@@ -102,7 +102,7 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
             printf("\nError: Memory allocation failed\n");
             return -1;
         }
-        valueToBinaryWord((int)value, dataWord);
+        valueToDataBinaryWord((int)value, dataWord);
         dataWordsArray[dataCounter + numberOfValues] = dataWord;
 
 
@@ -167,7 +167,7 @@ int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter
             printf("\nError: Memory allocation failed\n");
             return -1;
         }
-        valueToBinaryWord((int)string[i], dataWord);
+        valueToDataBinaryWord((int)string[i], dataWord);
         dataWordsArray[dataCounter + i - 1] = dataWord;
     }
     dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
@@ -175,7 +175,7 @@ int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter
         printf("\nError: Memory allocation failed\n");
         return -1;
     }
-    valueToBinaryWord(0, dataWord); /* Null-terminator char*/
+    valueToDataBinaryWord(0, dataWord); /* Null-terminator char*/
     dataWordsArray[dataCounter + i - 1] = dataWord;
 
     return numberOfChars;  /* Valid */

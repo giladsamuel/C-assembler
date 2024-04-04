@@ -16,8 +16,8 @@ int firstPass(const char *fileName) {
     char *labelName = NULL;
     Entry *symbolHashTable[TABLE_SIZE] = {NULL};
     Entry *entExtHashTable[TABLE_SIZE] = {NULL};
-    /*char machineCodeWords[MAX_INSTRUCTIONS][WORD_SIZE + 1];*/  /* +1 for null terminator */
-    char *dataWordsArray[MAX_INSTRUCTIONS];  /* +1 for null terminator */
+    char *machineCodeWordsArray[MAX_INSTRUCTIONS];
+    char *dataWordsArray[MAX_INSTRUCTIONS];
     int instructionCounter = 0;
     int dataCounter = 0;
     int lineNumber = 0;
@@ -96,15 +96,22 @@ int firstPass(const char *fileName) {
     if (firstPassErrFlag == -1) {
         printf("\nErrors in first pass.\n");
     }
-    secondPass(fileName, amFile, symbolHashTable, firstPassErrFlag);
     updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
 
     printf("\nSymbol table:\n");
     printTableEntries(symbolHashTable);
     printf("\nEntry/Extern table:\n");
     printTableEntries(entExtHashTable);
-    printf("\nInstruction counter: %d\n", instructionCounter);
+    printf("\nInstruction counter: %d\n", instructionCounter);  /* TODO - it starts from 0 not 1? offset of 1? 25/26?*/
     printf("\nData counter: %d\n", dataCounter);
+
+    if (firstPassErrFlag != -1) {
+        secondPass(fileName, amFile, symbolHashTable, entExtHashTable, machineCodeWordsArray);
+
+        printf("\nMachine code words:\n");
+        printBinaryWordsArray(machineCodeWordsArray, instructionCounter);
+        freeBinaryWordsArray(machineCodeWordsArray, instructionCounter);
+    }
     printf("\nData words:\n");
     printBinaryWordsArray(dataWordsArray, dataCounter);
     freeBinaryWordsArray(dataWordsArray, dataCounter);

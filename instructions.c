@@ -6,23 +6,24 @@ struct {
 	int operandsNumber;
 	char *sourceAddressingModes;
 	char *destinationAddressingModes;
+    char *opcode;
 } COMMANDS[] = {
-		{MOV, 2, "0,1,2,3", "1,2,3"}, 
-		{CMP, 2, "0,1,2,3", "0,1,2,3"},
-		{ADD, 2, "0,1,2,3", "1,2,3"},
-		{SUB, 2, "0,1,2,3", "1,2,3"},
-		{NOT, 1, "", "1,2,3"},
-		{CLR, 1, "", "1,2,3"},
-		{LEA, 2, "1,2", "1,2,3"},
-		{INC, 1, "", "1,2,3"},
-		{DEC, 1, "", "1,2,3"},
-		{JMP, 1, "", "1,3"},
-		{BNE, 1, "", "1,3"},
-		{RED, 1, "", "1,2,3"},
-		{PRN, 1, "", "0,1,2,3"},
-		{JSR, 1, "", "1,3"},
-		{RTS, 0, "", ""},
-		{HLT, 0, "", ""}}; 
+        {MOV, 2, "0,1,2,3", "1,2,3", "0000"}, 
+        {CMP, 2, "0,1,2,3", "0,1,2,3", "0001"},
+        {ADD, 2, "0,1,2,3", "1,2,3", "0010"},
+        {SUB, 2, "0,1,2,3", "1,2,3", "0011"},
+        {NOT, 1, "", "1,2,3", "0100"},
+        {CLR, 1, "", "1,2,3", "0101"},
+        {LEA, 2, "1,2", "1,2,3", "0110"},
+        {INC, 1, "", "1,2,3", "0111"},
+        {DEC, 1, "", "1,2,3", "1000"},
+        {JMP, 1, "", "1,3", "1001"},
+        {BNE, 1, "", "1,3", "1010"},
+        {RED, 1, "", "1,2,3", "1011"},
+        {PRN, 1, "", "0,1,2,3", "1100"},
+        {JSR, 1, "", "1,3", "1101"},
+        {RTS, 0, "", "", "1110"},
+        {HLT, 0, "", "", "1111"}}; 
 
 
 int parseValidateInstruction(char *instructionName, char* sentence, int lineNumber) {
@@ -220,7 +221,7 @@ int identifyAddressingMode(char *operand, int lineNumber) {
     if (operand[strlen(operand) - 1] == ']') {
         return 2;
     }
-    if (isRegister(operand)) {
+    if (isRegister(operand) != -1) {
         return 3;
     }
     return 1;
@@ -228,10 +229,10 @@ int identifyAddressingMode(char *operand, int lineNumber) {
 
 
 int isRegister(char *operand) {
-    if (operand[0] == 'r' && strlen(operand) == 2 && operand[1] >= '0' && operand[1] <= '7') {
-        return 1;
+    if (operand != NULL && operand[0] == 'r' && strlen(operand) == 2 && operand[1] >= '0' && operand[1] <= '7') {
+        return operand[1] - '0';
     }
-    return 0;
+    return -1;
 }
 
 int validateDestinationAddressingModeAgainstInstructionType(InstructionType instructionType, int addressingMode, int lineNumber) {
@@ -258,7 +259,7 @@ int getNumberOfWordsForInstruction(int sourceAddressingMode, int destinationAddr
         return 1;
 
     } else if (numberOfOperands == 1) {
-        if (sourceAddressingMode == 2) {
+        if (destinationAddressingMode == 2) {
             return 3;
         } else {
             return 2;
@@ -277,3 +278,274 @@ int getNumberOfWordsForInstruction(int sourceAddressingMode, int destinationAddr
     }
     return -1;
 }
+
+
+int parseInstructionToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *instructionName, char *sentence, int instructionCounter, char *machineCodeWordsArray[]) {
+    InstructionType instructionType;
+    char *firstOperand = NULL;
+    char *secondOperand = NULL;
+    int numberOfOperands;
+    int sourceAddressingMode = 0;  /*Set by default to 0 in case there is only one or no operands (destination)*/
+    int destinationAddressingMode = 0;  /* If there is only one operand, its defined as destination*/
+    int numberOfWords;
+    char *opcode = NULL;
+    char *codeWord = NULL;
+
+
+    instructionType = identifyInstructionType(instructionName);
+
+    numberOfOperands = validateInstructionCommaGetNumOfOperands(sentence, -1);
+
+    getInstructionOperands(&firstOperand, &secondOperand, sentence, &sourceAddressingMode, &destinationAddressingMode, numberOfOperands);
+
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+    opcode = COMMANDS[instructionType].opcode;
+    if(!instructionFirstBinaryWord(instructionType, sourceAddressingMode, destinationAddressingMode, codeWord, opcode)) {
+        printf("Error: Can't allocate memory for code word");
+        return -1;
+    }
+    machineCodeWordsArray[instructionCounter] = codeWord;
+
+    numberOfWords = getInstructionBinaryWords(symbolHashTable, entExtHashTable, numberOfOperands, firstOperand, secondOperand, sourceAddressingMode, destinationAddressingMode, instructionCounter, machineCodeWordsArray);
+
+
+
+    return numberOfWords; /*TODO - Change to error handel*/
+}
+
+
+int getInstructionOperands(char **firstOperandP, char **secondOperandP, char *sentence, int *sourceAddressingMode, int *destinationAddressingMode,  int numberOfOperands) {
+
+    *firstOperandP = strtok(sentence, " ,\t\n");
+    *secondOperandP = strtok(NULL, " ,\t\n");
+
+    if (numberOfOperands == 0) {
+        return 1;
+
+    } else if (numberOfOperands == 1) {
+        *destinationAddressingMode = identifyAddressingMode(*firstOperandP, -1);
+        return 1;
+
+    } else if (numberOfOperands == 2) {
+        *sourceAddressingMode = identifyAddressingMode(*firstOperandP, -1);
+        *destinationAddressingMode = identifyAddressingMode(*secondOperandP, -1);
+        return 1;
+    }
+    return -1;
+}
+
+
+int getInstructionBinaryWords(Entry *symbolHashTable[], Entry *entExtHashTable[], int numberOfOperands, char *firstOperand, char *secondOperand, int sourceAddressingMode, int destinationAddressingMode, int instructionCounter, char *machineCodeWordsArray[]) {
+    if (numberOfOperands == 0) {
+        return 1;
+
+    } else if (numberOfOperands == 1) {
+            if (destinationAddressingMode == IMMEDIATE) {
+                immediateToBinary(symbolHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (destinationAddressingMode == DIRECT) {
+                directToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (destinationAddressingMode == INDEX_ARRAY) {
+                indexArrayToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (destinationAddressingMode == REGISTER) {
+                registerToBinary(NULL, firstOperand, instructionCounter, machineCodeWordsArray);
+            }
+            return destinationAddressingMode == INDEX_ARRAY ? 3 : 2;                    
+        
+    } else if (numberOfOperands == 2) {
+        if (sourceAddressingMode == INDEX_ARRAY && destinationAddressingMode == INDEX_ARRAY) {
+            indexArrayToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            indexArrayToBinary(symbolHashTable, entExtHashTable, secondOperand, instructionCounter + 2, machineCodeWordsArray);
+            return 5;
+        } else if (sourceAddressingMode == REGISTER && destinationAddressingMode == REGISTER) {
+            registerToBinary(firstOperand, secondOperand, instructionCounter, machineCodeWordsArray);
+            return 2;
+        } else if (sourceAddressingMode == INDEX_ARRAY) {
+                indexArrayToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+
+                if (destinationAddressingMode == IMMEDIATE) {
+                    immediateToBinary(symbolHashTable, secondOperand, instructionCounter + 2, machineCodeWordsArray);
+                } else if (destinationAddressingMode == DIRECT) {
+                    directToBinary(symbolHashTable, entExtHashTable, secondOperand, instructionCounter + 2, machineCodeWordsArray);
+                } else if (destinationAddressingMode == REGISTER) {
+                    registerToBinary(firstOperand, secondOperand, instructionCounter + 2, machineCodeWordsArray);
+                }
+
+        } else if (destinationAddressingMode == INDEX_ARRAY) {
+            if (sourceAddressingMode == IMMEDIATE) {
+                immediateToBinary(symbolHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (sourceAddressingMode == DIRECT) {
+                directToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (sourceAddressingMode == REGISTER) {
+                registerToBinary(firstOperand, secondOperand, instructionCounter, machineCodeWordsArray);
+            }
+            indexArrayToBinary(symbolHashTable, entExtHashTable, secondOperand, instructionCounter + 1, machineCodeWordsArray);
+        
+        } else {
+            if (sourceAddressingMode == IMMEDIATE) {
+                immediateToBinary(symbolHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (sourceAddressingMode == DIRECT) {
+                directToBinary(symbolHashTable, entExtHashTable, firstOperand, instructionCounter, machineCodeWordsArray);
+            } else if (sourceAddressingMode == REGISTER) {
+                registerToBinary(firstOperand, secondOperand, instructionCounter, machineCodeWordsArray);
+            }
+            if (destinationAddressingMode == IMMEDIATE) {
+                immediateToBinary(symbolHashTable, secondOperand, instructionCounter + 1, machineCodeWordsArray);
+            } else if (destinationAddressingMode == DIRECT) {
+                directToBinary(symbolHashTable, entExtHashTable, secondOperand, instructionCounter + 1, machineCodeWordsArray);
+            } else if (destinationAddressingMode == REGISTER) {
+                registerToBinary(firstOperand, secondOperand, instructionCounter + 1, machineCodeWordsArray);
+            }
+        }
+        return sourceAddressingMode == INDEX_ARRAY || destinationAddressingMode == INDEX_ARRAY ? 4 : 3;
+    }
+    return -1;
+}
+
+
+int immediateToBinary(Entry *symbolHashTable[], char *operand, int instructionCounter, char *machineCodeWordsArray[]) {
+    char *valueStr = NULL;
+    char *codeWord = NULL;
+    char *endptr = NULL;
+    int val;
+    Entry *symbol = NULL;
+
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+
+    valueStr = strtok(operand, "#");
+    val = (int)strtol(valueStr, &endptr, 10);
+    if (endptr == valueStr) {
+        symbol = getEntry(symbolHashTable, valueStr);
+        val = symbol->value;
+    }
+
+    valueToCodeBinaryWord(val, codeWord);
+    strcat(codeWord, ABSOLUTE_ADD);
+    machineCodeWordsArray[instructionCounter + 1] = codeWord;
+
+    return 1;
+}
+
+
+int directToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *operandLabel, int instructionCounter, char *machineCodeWordsArray[]) {
+    char *codeWord = NULL;
+    Entry *labelSymbolEntry = NULL;
+    Entry *labelEntExtEntry = NULL;
+    int labelAddress;
+
+
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+    labelSymbolEntry = getEntry(symbolHashTable, operandLabel);
+    labelEntExtEntry = getEntry(entExtHashTable, operandLabel);
+    if (labelSymbolEntry != NULL) {
+        labelAddress = labelSymbolEntry->value;
+        valueToCodeBinaryWord(labelAddress, codeWord);
+        strcat(codeWord, RELOCATABLE_ADD);
+
+    } else if (labelEntExtEntry != NULL && labelEntExtEntry->property == EXTERNAL) {
+        valueToCodeBinaryWord(0, codeWord);
+         strcat(codeWord, EXTERNAL_ADD);
+    } else {
+        printf("Error, undefined label name %s\n", operandLabel);  /* TODO, handel error*/
+        free(codeWord);
+        return -1;
+    }
+    
+    machineCodeWordsArray[instructionCounter + 1] = codeWord;
+
+    return 1;
+}
+
+
+int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *operand, int instructionCounter, char *machineCodeWordsArray[]) {
+    char *codeWord = NULL;
+    char *arrayName = NULL;  /*TODO: validate array format in first pass*/
+    char *indexStr = NULL;
+    Entry *arraySymbolEntry = NULL;
+    Entry *arrayEntExtEntry = NULL;
+    int arrayAddress;
+    int index;
+    char *endptr = NULL;
+    Entry *symbol = NULL;
+
+
+    arrayName = strtok(operand, "[");
+    indexStr = strtok(NULL, "]");
+
+    /*array*/
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+    arraySymbolEntry = getEntry(symbolHashTable, arrayName);
+    arrayEntExtEntry = getEntry(entExtHashTable, arrayName);
+    if (arraySymbolEntry != NULL) {
+        arrayAddress = arraySymbolEntry->value;
+        valueToCodeBinaryWord(arrayAddress, codeWord);
+        strcat(codeWord, RELOCATABLE_ADD);
+
+    } else if (arrayEntExtEntry != NULL && arrayEntExtEntry->property == EXTERNAL) {
+        valueToCodeBinaryWord(0, codeWord);
+         strcat(codeWord, EXTERNAL_ADD);
+    } else {
+        printf("Error, undefined array name %s\n", arrayName);  /* TODO, handel error*/
+        free(codeWord);
+        return -1;
+    }
+    
+    machineCodeWordsArray[instructionCounter + 1] = codeWord;
+    
+    /*index*/
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+    index = (int)strtol(indexStr, &endptr, 10);
+    if (endptr == indexStr) {
+        symbol = getEntry(symbolHashTable, indexStr);
+        index = symbol->value;
+    }
+    valueToCodeBinaryWord(index, codeWord);
+    strcat(codeWord, ABSOLUTE_ADD);
+    machineCodeWordsArray[instructionCounter + 2] = codeWord;
+
+    return 1;
+}
+
+
+int registerToBinary(char *sourceOperand, char *destinationOperand, int instructionCounter, char *machineCodeWordsArray[]) {
+    char *codeWord = NULL;
+    int sourceRegNum;
+    int destinationRegNum;
+
+    codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
+    if (codeWord == NULL) {
+        printf("\nError: Memory allocation failed\n");
+        return -1;
+    }
+
+    sourceRegNum = isRegister(sourceOperand);
+    destinationRegNum = isRegister(destinationOperand);
+
+    registerBinaryWord(sourceRegNum, destinationRegNum, codeWord);
+
+
+    machineCodeWordsArray[instructionCounter + 1] = codeWord;
+
+    return 1;
+}
+
+

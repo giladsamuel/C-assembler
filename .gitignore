@@ -1,8 +1,7 @@
 .vscode/*
 *.o
 assembler
-example_macro.as
-example_macro.am
+example_macro.*
 test.as
 test.am
 compiler.h
