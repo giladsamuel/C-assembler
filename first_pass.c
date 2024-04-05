@@ -23,7 +23,8 @@ int firstPass(const char *fileName) {
     int lineNumber = 0;
     int numberOfValues = 0;
     int numberOfWords = 0;
-    int firstPassErrFlag = 0;
+    int firstErrFlag = 0;
+    int secondErrFlag = 0;
 
     amFileName = crateJoinString(fileName, ".am");
 
@@ -54,7 +55,8 @@ int firstPass(const char *fileName) {
             if (parseValidateConstant(symbolHashTable, entExtHashTable, sentence, &constantName, &constantValue, lineNumber)) {
                 insertSymbolEntExtEntry(symbolHashTable, constantName, MDEFINE, constantValue);
             } else {
-                firstPassErrFlag = -1;
+                printf("%s\n", lineCopy);
+                firstErrFlag = 1;
             }
             continue;
         }
@@ -64,7 +66,8 @@ int firstPass(const char *fileName) {
             if (!validateLabel(symbolHashTable, entExtHashTable, labelName, lineNumber) ||
                -1 == parseValidateLabelSentence(symbolHashTable, entExtHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter, dataWordsArray)) 
             {
-                firstPassErrFlag = -1;
+                printf("%s\n", lineCopy);
+                firstErrFlag = 1;
             }
             continue;
         }
@@ -75,8 +78,8 @@ int firstPass(const char *fileName) {
             if (numberOfValues > 0) {
                 dataCounter += numberOfValues;
             } else if (numberOfValues == -1) {
-                printf("Error: Invalid directive\n");
-                firstPassErrFlag = -1;
+                printf("Error: Invalid directive \n%s\n", lineCopy);
+                firstErrFlag = 1;
             }
             continue;
         }
@@ -84,8 +87,8 @@ int firstPass(const char *fileName) {
             sentence = strtok(NULL, "");
             numberOfWords = parseValidateInstruction(firstWord, sentence, lineNumber);
             if (numberOfWords == -1) {
-                printf("Error: Invalid instruction\n");
-                firstPassErrFlag = -1;
+                printf("Error: Invalid instruction \n%s\n", lineCopy);
+                firstErrFlag = 1;
             } else {
                 instructionCounter += numberOfWords;
             }
@@ -93,7 +96,7 @@ int firstPass(const char *fileName) {
         }
     }
 
-    if (firstPassErrFlag == -1) {
+    if (firstErrFlag) {
         printf("\nErrors in first pass.\n");
     }
     updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
@@ -105,13 +108,19 @@ int firstPass(const char *fileName) {
     printf("\nInstruction counter: %d\n", instructionCounter);  /* TODO - it starts from 0 not 1? offset of 1? 25/26?*/
     printf("\nData counter: %d\n", dataCounter);
 
-    if (firstPassErrFlag != -1) {
-        secondPass(fileName, amFile, symbolHashTable, entExtHashTable, machineCodeWordsArray);
+    if (NOT firstErrFlag) {
+        secondErrFlag = secondPass(fileName, amFile, symbolHashTable, entExtHashTable, machineCodeWordsArray);
 
         printf("\nMachine code words:\n");
         printBinaryWordsArray(machineCodeWordsArray, instructionCounter);
-        freeBinaryWordsArray(machineCodeWordsArray, instructionCounter);
     }
+    if (NOT secondErrFlag) {
+        /*makeOutputFiles(fileName, amFile, instructionCounter, dataCounter, entExtHashTable, machineCodeWordsArray, dataWordsArray);*/
+    } else {
+        printf("\nErrors in second pass.\n");
+    }
+
+    freeBinaryWordsArray(machineCodeWordsArray, instructionCounter);
     printf("\nData words:\n");
     printBinaryWordsArray(dataWordsArray, dataCounter);
     freeBinaryWordsArray(dataWordsArray, dataCounter);
@@ -119,7 +128,7 @@ int firstPass(const char *fileName) {
     freeTable(entExtHashTable);
     fclose(amFile);
 
-    return firstPassErrFlag;
+    return firstErrFlag;
 }
 
 

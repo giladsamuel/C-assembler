@@ -24,24 +24,24 @@
 
 int main(int argc, const char *argv[]) {
     int i;
+    int errFlag = 0;
     
     if (argc <= 1) {
         printf("No command line file name arguments provided.\n");
         return 1;
     }
     for (i = 1; i < argc; i++) {
+        errFlag = 0;
+
         printf("Argument %d: %s\n", i, argv[i]);
-        if (preprocessMacros(argv[i]) != 0) {
-            printf("Error: Failed to convert macro file to table.\n"); /* TODO - change error*/
-            return EXIT_FAILURE;
+        if (NOT preprocessMacros(argv[i])) {
+            printf("Error: Fail in macro preprocessor.\n");
+            continue;
         }
-        if (firstPass(argv[i]) == -1) {
-            printf("Errors in compiler's first pass.\n");
-            
+        errFlag = firstPass(argv[i]);
+        if (errFlag) {
+            printf("Errors in compiler's first and second passes.\n");
         }
-        /*if (secondPass(argv[i]) == -1) {
-            printf("Errors in compiler's second pass.\n");
-        }*/
     }
 
     return EXIT_SUCCESS;

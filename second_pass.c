@@ -49,8 +49,9 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
         if (firstWordType == LABEL) {
             sentence = strtok(NULL, "");
             if (-1 == parseLabelSentence(symbolHashTable, entExtHashTable, sentence, &instructionCounter, machineCodeWordsArray, lineNumber)) 
-            {
-                errFlag = -1;
+            {  
+                printf("%s\n", lineCopy);
+                errFlag = 1;
             }
             continue;
         }
@@ -59,10 +60,10 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
         }
         if (firstWordType == INSTRUCTION) {
             sentence = strtok(NULL, "");
-            numberOfWords = parseInstructionToBinary(symbolHashTable, entExtHashTable, firstWord, sentence, instructionCounter, machineCodeWordsArray);
+            numberOfWords = parseInstructionToBinary(symbolHashTable, entExtHashTable, firstWord, sentence, instructionCounter, machineCodeWordsArray, lineNumber);
             if (numberOfWords == -1) {
-                printf("Error: Invalid instruction\n"); /* TODO: malloc fail handel*/
-                errFlag = -1;
+                printf("Error: Invalid instruction \n%s\n", lineCopy);
+                errFlag = 1;
             } else {
                 instructionCounter += numberOfWords;
             }
@@ -86,7 +87,7 @@ int parseLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[], char 
     }
     if (firstWordType == INSTRUCTION) {
         sentence = strtok(NULL, "");
-        numberOfWords = parseInstructionToBinary(symbolHashTable, entExtHashTable, firstWord, sentence, *instructionCounter, machineCodeWordsArray);
+        numberOfWords = parseInstructionToBinary(symbolHashTable, entExtHashTable, firstWord, sentence, *instructionCounter, machineCodeWordsArray, lineNumber);
         if (numberOfWords == -1) {
             printf("Error: Invalid instruction\n");
         } else {

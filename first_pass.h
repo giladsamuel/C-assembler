@@ -11,8 +11,9 @@
 #include "binary_word.h"
 
 #define MAX_LINE_LENGTH 81
-
 #define MAX_INSTRUCTIONS 100
+
+#define NOT !
 
 typedef enum {
     EMPTY,

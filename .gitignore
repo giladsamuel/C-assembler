@@ -2,6 +2,6 @@
 *.o
 assembler
 example_macro.*
-test.as
-test.am
+ps.*
+test.*
 compiler.h

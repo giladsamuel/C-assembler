@@ -68,7 +68,7 @@ int preprocessMacros(const char* fileName) {
                     freeTable(macroHashTable);
                     fclose(asFile);
                     fclose(amFile);
-                    return 1;
+                    return 0;
                 }
             }
             continue;
@@ -82,7 +82,7 @@ int preprocessMacros(const char* fileName) {
     freeTable(macroHashTable);
     fclose(asFile);
     fclose(amFile);
-    return 0;
+    return 1;
 }
 
 
