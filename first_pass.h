@@ -9,6 +9,7 @@
 #include "instructions.h"
 #include "second_pass.h"
 #include "binary_word.h"
+#include "output_files.h"
 
 #define MAX_LINE_LENGTH 81
 #define MAX_INSTRUCTIONS 100

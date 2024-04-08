@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -g -ansi -pedantic -Wall
 
-assembler: assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o binary_word.o
-	$(CC) $(CFLAGS) assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o instructions.o directives.o binary_word.o -o assembler
+assembler: assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o output_files.o instructions.o directives.o binary_word.o
+	$(CC) $(CFLAGS) assembler.o preprocessor.o hash_table.o str_helper.o first_pass.o second_pass.o output_files.o instructions.o directives.o binary_word.o -o assembler
 
 assembler.o: assembler.c preprocessor.h hash_table.h str_helper.h
 	$(CC) -c $(CFLAGS) assembler.c -o assembler.o
@@ -21,6 +21,9 @@ first_pass.o: first_pass.c first_pass.h hash_table.h directives.h instructions.h
 
 second_pass.o: second_pass.c second_pass.h hash_table.h first_pass.h
 	$(CC) -c $(CFLAGS) second_pass.c -o second_pass.o
+
+output_files.o: output_files.c output_files.h hash_table.h
+	$(CC) -c $(CFLAGS) output_files.c -o output_files.o
 
 instructions.o: instructions.c instructions.h binary_word.h instruction_type.h hash_table.h
 	$(CC) -c $(CFLAGS) instructions.c -o instructions.o

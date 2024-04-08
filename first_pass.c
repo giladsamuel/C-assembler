@@ -3,7 +3,7 @@
 
 int firstPass(const char *fileName) {
     size_t len;
-    char * amFileName = NULL;
+    char *amFileName = NULL;
     FILE *amFile = NULL;
     char line[MAX_LINE_LENGTH]; 
     char lineCopy[MAX_LINE_LENGTH];
@@ -115,7 +115,7 @@ int firstPass(const char *fileName) {
         printBinaryWordsArray(machineCodeWordsArray, instructionCounter);
     }
     if (NOT secondErrFlag) {
-        /*makeOutputFiles(fileName, amFile, instructionCounter, dataCounter, entExtHashTable, machineCodeWordsArray, dataWordsArray);*/
+        createOutputFiles(fileName, amFile, instructionCounter, dataCounter, machineCodeWordsArray, dataWordsArray, entExtHashTable);
     } else {
         printf("\nErrors in second pass.\n");
     }

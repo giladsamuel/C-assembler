@@ -3,8 +3,6 @@
 
 int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Entry *entExtHashTable[], char *machineCodeWordsArray[]) {
     size_t len;
-    char *objectFileName = NULL;
-    FILE *obFile = NULL;
     char line[MAX_LINE_LENGTH];
     char lineCopy[MAX_LINE_LENGTH];
     char *firstWord = NULL;
@@ -14,18 +12,6 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
     int instructionCounter = 0;
     int lineNumber = 0;
     int errFlag = 0;
-
-    objectFileName = crateJoinString(fileName, ".object");
-    if (objectFileName == NULL) {
-        return -1;
-    }
-    obFile = fopen(objectFileName, "w");
-    if (obFile == NULL) {
-        printf("Error: failed to open file %s\n", objectFileName);
-        free(objectFileName);
-        return -1;
-    }
-    free(objectFileName);
 
     rewind(amFile);
 
