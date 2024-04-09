@@ -35,5 +35,6 @@ int validateLabel(Entry *symbolHashTable[], Entry *entExtHashTable[], const char
 int isValidName(struct Entry *hashTable[], const char *name, int lineNumber);
 int isValidValue(const char *value);
 void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset);
+void updateEntranceValue(Entry *symbolHashTable[], Entry *entExtHashTable[]);
 
 #endif

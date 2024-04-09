@@ -7,9 +7,7 @@
 #include "str_helper.h"
 
 #define TABLE_SIZE 104
-
-/*#define INITIAL_TABLE_SIZE 104*/ /* TODO - hash table can grow*/
-#define TABLE_SIZE 104
+#define MEMORY_OFFSET 100
 
 typedef enum PropertyType{
     NO_PROPERTY,
@@ -21,10 +19,10 @@ typedef enum PropertyType{
 } Property;
 
 typedef struct Entry {
-    char* name;
+    char *name;
     Property property;
     int value;
-    char* data;
+    char *data;
     struct Entry *next;
 } Entry;
 

@@ -9,8 +9,6 @@
 #include "instruction_type.h"
 #include "hash_table.h"
 
-#define MEMORY_OFFSET 100
-
 
 enum {
     NO_OPERAND,

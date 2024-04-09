@@ -100,7 +100,6 @@ int firstPass(const char *fileName) {
         printf("\nErrors in first pass.\n");
     }
     updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
-
     printf("\nSymbol table:\n");
     printTableEntries(symbolHashTable);
     printf("\nEntry/Extern table:\n");
@@ -114,8 +113,11 @@ int firstPass(const char *fileName) {
         printf("\nMachine code words:\n");
         printBinaryWordsArray(machineCodeWordsArray, instructionCounter);
     }
+    fclose(amFile);
+
     if (NOT secondErrFlag) {
-        createOutputFiles(fileName, amFile, instructionCounter, dataCounter, machineCodeWordsArray, dataWordsArray, entExtHashTable);
+        updateEntranceValue(symbolHashTable, entExtHashTable);
+        createOutputFiles(fileName, instructionCounter, dataCounter, machineCodeWordsArray, dataWordsArray, entExtHashTable);
     } else {
         printf("\nErrors in second pass.\n");
     }
@@ -124,9 +126,11 @@ int firstPass(const char *fileName) {
     printf("\nData words:\n");
     printBinaryWordsArray(dataWordsArray, dataCounter);
     freeBinaryWordsArray(dataWordsArray, dataCounter);
+    printf("\nEntry/Extern table:\n");
+    printTableEntries(entExtHashTable);
     freeTable(symbolHashTable);
     freeTable(entExtHashTable);
-    fclose(amFile);
+
 
     return firstErrFlag;
 }
@@ -309,4 +313,19 @@ void updateDataSymbols(Entry *symbolHashTable[], int instructionOffset) {
         }
     }
     
+}
+
+
+void updateEntranceValue(Entry *symbolHashTable[], Entry *entExtHashTable[]) {
+    int i;
+    Entry *entry = NULL;
+    for (i = 0; i < TABLE_SIZE; i++) {
+        entry = entExtHashTable[i];
+        while (entry != NULL) {
+            if (entry->property == ENTRANCE) {
+                entry->value = getEntry(symbolHashTable, entry->name)->value;
+            }
+            entry = entry->next;
+        }
+    }
 }

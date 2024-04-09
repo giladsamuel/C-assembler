@@ -216,15 +216,15 @@ int identifyAddressingMode(char *operand, int lineNumber) {
         return -1;
     }
     if (operand[0] == '#') {
-        return 0;
+        return IMMEDIATE;
     }
     if (operand[strlen(operand) - 1] == ']') {
-        return 2;
+        return INDEX_ARRAY;
     }
     if (isRegister(operand) != -1) {
-        return 3;
+        return REGISTER;
     }
-    return 1;
+    return DIRECT;
 }
 
 
@@ -259,18 +259,18 @@ int getNumberOfWordsForInstruction(int sourceAddressingMode, int destinationAddr
         return 1;
 
     } else if (numberOfOperands == 1) {
-        if (destinationAddressingMode == 2) {
+        if (destinationAddressingMode == INDEX_ARRAY) {
             return 3;
         } else {
             return 2;
         }
 
     } else if (numberOfOperands == 2) {
-        if (sourceAddressingMode == 2 && destinationAddressingMode == 2) {
+        if (sourceAddressingMode == INDEX_ARRAY && destinationAddressingMode == INDEX_ARRAY) {
             return 5;
-        } else if (sourceAddressingMode == 2 || destinationAddressingMode == 2) {
+        } else if (sourceAddressingMode == INDEX_ARRAY || destinationAddressingMode == INDEX_ARRAY) {
             return 4;
-        } else if (sourceAddressingMode == 3 && destinationAddressingMode == 3) {
+        } else if (sourceAddressingMode == REGISTER && destinationAddressingMode == REGISTER) {
             return 2;
         } else {
             return 3;
@@ -473,8 +473,9 @@ int directToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *ope
         strcat(codeWord, RELOCATABLE_ADD);
 
     } else if (labelEntExtEntry != NULL && labelEntExtEntry->property == EXTERNAL) {
+        insertSymbolEntExtEntry(entExtHashTable, operandLabel, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
         valueToCodeBinaryWord(0, codeWord);
-         strcat(codeWord, EXTERNAL_ADD);
+        strcat(codeWord, EXTERNAL_ADD);
     } else {
         printf("\nError in line %d: undefined direct name - %s\n", lineNumber ,operandLabel);
         free(codeWord);
@@ -516,6 +517,7 @@ int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char 
         strcat(codeWord, RELOCATABLE_ADD);
 
     } else if (arrayEntExtEntry != NULL && arrayEntExtEntry->property == EXTERNAL) {
+        insertSymbolEntExtEntry(entExtHashTable, arrayName, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
         valueToCodeBinaryWord(0, codeWord);
          strcat(codeWord, EXTERNAL_ADD);
     } else {
