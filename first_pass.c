@@ -25,6 +25,7 @@ int firstPass(const char *fileName) {
     int numberOfWords = 0;
     int firstErrFlag = 0;
     int secondErrFlag = 0;
+    Entry *entry = NULL;
 
     amFileName = crateJoinString(fileName, ".am");
 
@@ -43,7 +44,7 @@ int firstPass(const char *fileName) {
         }
         lineNumber++;
 
-        strncpy(lineCopy, line, sizeof(lineCopy));  /* TODO - ??It ensures that lineCopy is null-terminated even if line is not. */
+        strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(lineCopy, " \t\n");
         firstWordType = identifyLineType(firstWord);
 
@@ -53,9 +54,12 @@ int firstPass(const char *fileName) {
         if (firstWordType == CONSTANT) {
             sentence = strtok(NULL, "");
             if (parseValidateConstant(symbolHashTable, entExtHashTable, sentence, &constantName, &constantValue, lineNumber)) {
-                insertSymbolEntExtEntry(symbolHashTable, constantName, MDEFINE, constantValue);
+                entry = insertSymbolEntExtEntry(symbolHashTable, constantName, MDEFINE, constantValue);
+                if (entry == NULL) {
+                    firstErrFlag = 1;
+                }       
             } else {
-                printf("%s\n", lineCopy);
+                printf("%s\n", line);
                 firstErrFlag = 1;
             }
             continue;
@@ -66,7 +70,7 @@ int firstPass(const char *fileName) {
             if (!validateLabel(symbolHashTable, entExtHashTable, labelName, lineNumber) ||
                -1 == parseValidateLabelSentence(symbolHashTable, entExtHashTable, labelName, sentence, lineNumber, &instructionCounter, &dataCounter, dataWordsArray)) 
             {
-                printf("%s\n", lineCopy);
+                printf("%s\n", line);
                 firstErrFlag = 1;
             }
             continue;
@@ -78,7 +82,7 @@ int firstPass(const char *fileName) {
             if (numberOfValues > 0) {
                 dataCounter += numberOfValues;
             } else if (numberOfValues == -1) {
-                printf("Error: Invalid directive \n%s\n", lineCopy);
+                printf("Error: Invalid directive \n%s\n", line);
                 firstErrFlag = 1;
             }
             continue;
@@ -87,7 +91,7 @@ int firstPass(const char *fileName) {
             sentence = strtok(NULL, "");
             numberOfWords = parseValidateInstruction(firstWord, sentence, lineNumber);
             if (numberOfWords == -1) {
-                printf("Error: Invalid instruction \n%s\n", lineCopy);
+                printf("Error: Invalid instruction \n%s\n", line);
                 firstErrFlag = 1;
             } else {
                 instructionCounter += numberOfWords;
@@ -104,7 +108,7 @@ int firstPass(const char *fileName) {
     printTableEntries(symbolHashTable);
     printf("\nEntry/Extern table:\n");
     printTableEntries(entExtHashTable);
-    printf("\nInstruction counter: %d\n", instructionCounter);  /* TODO - it starts from 0 not 1? offset of 1? 25/26?*/
+    printf("\nInstruction counter: %d\n", instructionCounter);
     printf("\nData counter: %d\n", dataCounter);
 
     if (NOT firstErrFlag) {
@@ -188,6 +192,7 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[
     DirectiveType directiveType;
     int numberOfValues = 0;
     int numberOfWords = 0;
+    Entry *entry = NULL;
 
     firstWord = strtok(sentence, " \t\n");
     firstWordType = identifyLineType(firstWord);
@@ -215,7 +220,10 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[
             printf("Invalid directive at line %d\n", lineNumber);
         }
         if (numberOfValues > 0) {
-            insertSymbolEntExtEntry(symbolHashTable, labelName, DATA_STRING, *dataCounter);
+            entry = insertSymbolEntExtEntry(symbolHashTable, labelName, DATA_STRING, *dataCounter);
+            if (entry == NULL) {
+                return -1;
+            }
             (*dataCounter) += numberOfValues;
         }
         return numberOfValues;
@@ -226,7 +234,10 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[
         if (numberOfWords == -1) {
             printf("Error: Invalid instruction\n");
         } else {
-            insertSymbolEntExtEntry(symbolHashTable, labelName, CODE, *instructionCounter + MEMORY_OFFSET);
+            entry = insertSymbolEntExtEntry(symbolHashTable, labelName, CODE, *instructionCounter + MEMORY_OFFSET);
+            if (entry == NULL) {
+                return -1;
+            }
             (*instructionCounter) += numberOfWords;
         }
         return numberOfWords;

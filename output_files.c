@@ -110,11 +110,6 @@ void encryptWord(char encryptLine[8], char *binaryWord) {
 }
 
 
-int binaryToDecimal(char *binary) {
-    return (int)strtol(binary, NULL, 2);
-}
-
-
 char mapToBase4(int decimal) {
     char base4[] = {'*', '#', '%', '!'};
 

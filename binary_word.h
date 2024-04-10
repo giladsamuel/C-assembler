@@ -16,8 +16,8 @@ void valueToCodeBinaryWord(int value, char binaryWord[WORD_SIZE + 1]);
 int instructionFirstBinaryWord(InstructionType instructionType, int sourceAddressingMode, int destinationAddressingMode, char *machineCodeWord, char *opcode);
 char *addressingModeToBinary(int addressingMode);
 int registerBinaryWord(int sourceRegNum, int destinationRegNum, char *codeWord);
-
 void printBinaryWordsArray(char *dataWordsArray[], int dataCounter);
 void freeBinaryWordsArray(char *dataWordsArray[], int dataCounter);
+int binaryToDecimal(char *binary);
 
 #endif

@@ -183,6 +183,7 @@ int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter
 
 
 int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, int lineNumber, Property myProperty) {
+    Entry *entry = NULL;
     char *name = strtok(sentence, " \t\n");
     if (name == NULL) {
         printf("\nError in line %d: Missing argument\n", lineNumber);
@@ -197,7 +198,10 @@ int parseValidateInsertEntryExternDirective(Entry *symbolHashTable[], Entry *ent
                 return -1;
             }
         }
-        insertSymbolEntExtEntry(entExtHashTable, name, myProperty, 0);
+        entry = insertSymbolEntExtEntry(entExtHashTable, name, myProperty, 0);
+        if (entry == NULL) {
+            return -1;
+        }
         name = strtok(NULL, " \t\n");
     }
     return 0;

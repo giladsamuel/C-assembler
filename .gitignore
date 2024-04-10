@@ -5,3 +5,8 @@ example_macro.*
 ps.*
 test.*
 compiler.h
+*.am
+*.ob
+*.as
+*.ext
+*.ent

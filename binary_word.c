@@ -178,3 +178,8 @@ void freeBinaryWordsArray(char *wordsArray[], int counter) {
         free(wordsArray[i]);
     }
 }
+
+
+int binaryToDecimal(char *binary) {
+    return (int)strtol(binary, NULL, 2);
+}

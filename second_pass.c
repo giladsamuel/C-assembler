@@ -22,7 +22,7 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
         }
         lineNumber++;
 
-        strncpy(lineCopy, line, sizeof(lineCopy));  /* TODO - ??It ensures that lineCopy is null-terminated even if line is not. */
+        strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(line, " \t\n");
         firstWordType = identifyLineType(firstWord);
 
@@ -36,7 +36,7 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
             sentence = strtok(NULL, "");
             if (-1 == parseLabelSentence(symbolHashTable, entExtHashTable, sentence, &instructionCounter, machineCodeWordsArray, lineNumber)) 
             {  
-                printf("%s\n", lineCopy);
+                printf("%s\n", line);
                 errFlag = 1;
             }
             continue;
@@ -48,7 +48,7 @@ int secondPass(const char* fileName, FILE *amFile, Entry *symbolHashTable[], Ent
             sentence = strtok(NULL, "");
             numberOfWords = parseInstructionToBinary(symbolHashTable, entExtHashTable, firstWord, sentence, instructionCounter, machineCodeWordsArray, lineNumber);
             if (numberOfWords == -1) {
-                printf("Error: Invalid instruction \n%s\n", lineCopy);
+                printf("Error: Invalid instruction \n%s\n", line);
                 errFlag = 1;
             } else {
                 instructionCounter += numberOfWords;

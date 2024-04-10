@@ -1,7 +1,6 @@
 #include "hash_table.h"
 
 
-/* TODO - make privet*/
 unsigned int hashFunction(const char* key);
 Entry *createEntry(const char *name, int property, int value, const char *data);
 
@@ -19,8 +18,8 @@ unsigned int hashFunction(const char* key) {
 Entry *createEntry(const char *name, int property, int value, const char *data) {
     Entry *newEntry = (Entry *)malloc(sizeof(Entry));
     if (newEntry == NULL) {
-        fprintf(stderr, "Error: Memory allocation failed.\n");
-        exit(EXIT_FAILURE);  /* TODO - How to exit*/
+        printf("Error: Memory allocation failed when created hash tavel entry.\n");
+        return NULL;
     }
     newEntry->name = strdup(name);
     newEntry->property = property;

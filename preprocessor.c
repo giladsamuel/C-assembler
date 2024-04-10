@@ -1,12 +1,12 @@
 #include "preprocessor.h"
 
-char *addMacroLine(Entry *macroEntry, const char *line); /* TODO - make privet*/
+char *addMacroLine(Entry *macroEntry, const char *line);
 Entry *insertMacroEntry(Entry *ht[TABLE_SIZE], const char *name);
 
 
 int preprocessMacros(const char* fileName) {
-    char * asFileName = NULL;
-    char * amFileName = NULL;
+    char *asFileName = NULL;
+    char *amFileName = NULL;
     FILE *asFile = NULL;
     FILE *amFile = NULL;
     char line[MAX_LINE_LENGTH]; 
@@ -16,7 +16,7 @@ int preprocessMacros(const char* fileName) {
     Entry *macroHashTable[TABLE_SIZE] = {NULL};
     Entry *macroEntry = NULL;
     Entry *newMacroEntry = NULL;
-    int macroFoundFlag;
+    int macroFoundFlag = 0;
 
     asFileName = crateJoinString(fileName, ".as");
     amFileName = crateJoinString(fileName, ".am");
@@ -37,7 +37,6 @@ int preprocessMacros(const char* fileName) {
     }
     free(asFileName);
 
-    macroFoundFlag = 0;
     while (fgets(line, sizeof(line), asFile) != NULL) {
         strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(lineCopy, " \t\n");
@@ -55,6 +54,12 @@ int preprocessMacros(const char* fileName) {
             macroFoundFlag = 1;
             macroName = strtok(NULL, " \t\n");
             newMacroEntry = insertMacroEntry(macroHashTable ,macroName);
+            if (newMacroEntry == NULL) {
+                freeTable(macroHashTable);
+                fclose(asFile);
+                fclose(amFile);
+                return 0;
+            }
             continue;
         }
 
@@ -78,7 +83,7 @@ int preprocessMacros(const char* fileName) {
         }
 
     }
-    /*printTableEntries(macroHashTable);*/  /* TODO - remove*/
+    /* printTableEntries(macroHashTable); */
     freeTable(macroHashTable);
     fclose(asFile);
     fclose(amFile);

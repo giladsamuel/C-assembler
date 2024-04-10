@@ -458,6 +458,7 @@ int directToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *ope
     Entry *labelSymbolEntry = NULL;
     Entry *labelEntExtEntry = NULL;
     int labelAddress;
+    Entry *entry = NULL;
 
 
     codeWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
@@ -473,7 +474,10 @@ int directToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *ope
         strcat(codeWord, RELOCATABLE_ADD);
 
     } else if (labelEntExtEntry != NULL && labelEntExtEntry->property == EXTERNAL) {
-        insertSymbolEntExtEntry(entExtHashTable, operandLabel, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
+        entry = insertSymbolEntExtEntry(entExtHashTable, operandLabel, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
+        if (entry == NULL) {
+        return 1;
+        }
         valueToCodeBinaryWord(0, codeWord);
         strcat(codeWord, EXTERNAL_ADD);
     } else {
@@ -498,6 +502,7 @@ int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char 
     int index;
     char *endptr = NULL;
     Entry *symbol = NULL;
+    Entry *entry = NULL;
 
 
     arrayName = strtok(operand, "[");
@@ -517,9 +522,13 @@ int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char 
         strcat(codeWord, RELOCATABLE_ADD);
 
     } else if (arrayEntExtEntry != NULL && arrayEntExtEntry->property == EXTERNAL) {
-        insertSymbolEntExtEntry(entExtHashTable, arrayName, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
+        entry = insertSymbolEntExtEntry(entExtHashTable, arrayName, EXTERNAL, instructionCounter + 1 + MEMORY_OFFSET);
+        if (entry == NULL) {
+            free(codeWord);
+            return 1;
+        }
         valueToCodeBinaryWord(0, codeWord);
-         strcat(codeWord, EXTERNAL_ADD);
+        strcat(codeWord, EXTERNAL_ADD);
     } else {
         printf("\nError in line %d: undefined array name - %s\n", lineNumber ,arrayName);
         free(codeWord);
