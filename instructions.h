@@ -26,7 +26,7 @@ enum {
 };
 
 int parseValidateInstruction(char *instructionName, char* sentence, int lineNumber);
-int identifyInstructionType(char *instructionName);
+int identifyInstructionType(const char *instructionName);
 int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber);
 int validateNumberOfOperandsAgainstInstructionType(InstructionType instructionType, int numberOfOperands, int lineNumber);
 int validateInstructionOperands(InstructionType instructionType, char *sentence, int *sourceAddressingMode, int *destinationAddressingMode,  int numberOfOperands, int lineNumber);

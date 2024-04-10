@@ -18,7 +18,6 @@ int preprocessMacros(const char* fileName) {
     Entry *newMacroEntry = NULL;
     int macroFoundFlag = 0;
     int lineNumber = 0;
-    int macroErrFlag = 0;
 
     asFileName = crateJoinString(fileName, ".as");
     amFileName = crateJoinString(fileName, ".am");
@@ -56,7 +55,7 @@ int preprocessMacros(const char* fileName) {
         if (strcmp(firstWord, "mcr") == 0) {
             macroFoundFlag = 1;
             macroName = strtok(NULL, " \t\n");
-            if (!isValidName(macroHashTable, macroName, lineNumber)) {
+            if (!isValidMacroName(macroHashTable, macroName, lineNumber)) {
                 printf("ERROR in macro name\n");
                 freeTable(macroHashTable);
                 fclose(asFile);
@@ -105,7 +104,7 @@ char *addMacroLine(Entry *macroEntry, const char *line) {
     if (macroEntry->data == NULL) {
         macroEntry->data = strdup(line);
         if (macroEntry->data == NULL) {
-            fprintf(stderr, "Error: Memory allocation failed.\n");
+            printf("Error: Memory allocation failed.\n");
             return NULL;
         }
     } else {
@@ -119,4 +118,31 @@ char *addMacroLine(Entry *macroEntry, const char *line) {
 
 Entry *insertMacroEntry(Entry *ht[TABLE_SIZE], const char *name) {
     return insertEntry(ht, name, NO_PROPERTY, -1, NULL);
+}
+
+
+int isValidMacroName(Entry *hashTable[], const char *name, int lineNumber) {
+    Entry *entry = NULL;
+    if (name == NULL) {
+        return 0;
+    }
+    if (strlen(name) > 31) {
+        printf("\nError in line %d: Macro name '%s' is too long.\n", lineNumber, name);
+        return 0;
+    }
+    if (!isalpha(name[0])) {
+        printf("\nError in line %d: Macro name '%s' must start with a letter.\n", lineNumber, name);
+        return 0;
+    }
+    if (identifyDirectiveType(name) != -1 || identifyInstructionType(name) != -1) {
+        printf("\nError in line %d: Macro name '%s' can not be name of instruction or directive.\n", lineNumber, name);
+        return 0;
+    }
+    entry = getEntry(hashTable, name);
+    if (entry != NULL) {
+            printf("\nError in line %d: Macro name '%s' is already defined.\n", lineNumber, name);
+            return 0;
+        }
+
+    return 1;
 }

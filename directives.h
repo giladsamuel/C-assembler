@@ -13,7 +13,7 @@ typedef enum Directive{
 } DirectiveType;
 
 
-DirectiveType identifyDirectiveType(char *directive);
+DirectiveType identifyDirectiveType(const char *directive);
 int parseValidateDirective(Entry *symbolHashTable[], Entry *entExtHashTable[], char *sentence, DirectiveType directiveType, int lineNumber, int dataCounter, char *dataWordsArray[]);
 int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]);
 int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter, char *dataWordsArray[]);

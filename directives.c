@@ -1,7 +1,7 @@
 #include "directives.h"
 
 
-DirectiveType identifyDirectiveType(char *directive) {
+DirectiveType identifyDirectiveType(const char *directive) {
     if (strcmp(directive, ".data") == 0) {
         return DATA;
     }

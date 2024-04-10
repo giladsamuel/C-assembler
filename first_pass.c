@@ -109,34 +109,27 @@ int firstPass(const char *fileName) {
         printf("\nErrors in first pass.\n");
     }
     updateDataSymbols(symbolHashTable, instructionCounter + MEMORY_OFFSET);
-    printf("\nSymbol table:\n");
-    printTableEntries(symbolHashTable);
-    printf("\nEntry/Extern table:\n");
-    printTableEntries(entExtHashTable);
-    printf("\nInstruction counter: %d\n", instructionCounter);
-    printf("\nData counter: %d\n", dataCounter);
 
     if (NOT firstErrFlag) {
         secondErrFlag = secondPass(fileName, amFile, symbolHashTable, entExtHashTable, machineCodeWordsArray);
 
-        printf("\nMachine code words:\n");
-        printBinaryWordsArray(machineCodeWordsArray, instructionCounter);
+        /*printf("\nMachine code words:\n");
+        printBinaryWordsArray(machineCodeWordsArray, instructionCounter);*/
     }
     fclose(amFile);
-
+    if (secondErrFlag) {
+        printf("\nErrors in second pass.\n");
+    }
     if (NOT firstErrFlag && NOT secondErrFlag) {
         updateEntranceValue(symbolHashTable, entExtHashTable);
         createOutputFiles(fileName, instructionCounter, dataCounter, machineCodeWordsArray, dataWordsArray, entExtHashTable);
-    } else {
-        printf("\nErrors in second pass.\n");
     }
+    
 
     freeBinaryWordsArray(machineCodeWordsArray, instructionCounter);
-    printf("\nData words:\n");
-    printBinaryWordsArray(dataWordsArray, dataCounter);
+    /*printf("\nData words:\n");
+    printBinaryWordsArray(dataWordsArray, dataCounter);*/
     freeBinaryWordsArray(dataWordsArray, dataCounter);
-    printf("\nEntry/Extern table:\n");
-    printTableEntries(entExtHashTable);
     freeTable(symbolHashTable);
     freeTable(entExtHashTable);
 
@@ -178,11 +171,11 @@ int parseValidateConstant(Entry *symbolHashTable[], Entry *entExtHashTable[], ch
         return 0;
     }
     if (equalSign == NULL || *equalSign != '=' ) {
-        printf("\nError: Invalid constant definition at line %d.\n", lineNumber);
+        printf("\nError in line %d: Invalid constant definition.\n", lineNumber);
         return 0;
     }
     if (!isValidValue(value)) {
-        printf("\nError: Invalid constant value at line %d.\n", lineNumber);
+        printf("\nError in line %d: Invalid constant value.\n", lineNumber);
         return 0;
     }
     *constantName = name;
@@ -222,7 +215,7 @@ int parseValidateLabelSentence(Entry *symbolHashTable[], Entry *entExtHashTable[
         sentence = strtok(NULL, "");
         numberOfValues = parseValidateDirective(symbolHashTable, entExtHashTable, sentence, directiveType, lineNumber, *dataCounter, dataWordsArray);
         if (numberOfValues == -1) {
-            printf("Invalid directive at line %d\n", lineNumber);
+            printf("Invalid directive\n");
         }
         if (numberOfValues > 0) {
             entry = insertSymbolEntExtEntry(symbolHashTable, labelName, DATA_STRING, *dataCounter);
@@ -285,6 +278,10 @@ int isValidName(Entry *hashTable[], const char *name, int lineNumber) {
             printf("\nError in line %d: Name '%s' must contain only letters and digits.\n", lineNumber, name);
             return 0;
         }
+    }
+    if (identifyDirectiveType(name) != -1 || identifyInstructionType(name) != -1) {
+        printf("\nError in line %d: Name '%s' can not be name of instruction or directive.\n", lineNumber, name);
+        return 0;
     }
     entry = getEntry(hashTable, name);
     if (entry != NULL) {

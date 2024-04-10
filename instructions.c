@@ -41,7 +41,7 @@ int parseValidateInstruction(char *instructionName, char* sentence, int lineNumb
     }
     numberOfOperands = validateInstructionCommaGetNumOfOperands(sentence, lineNumber);
     if (numberOfOperands == -1) {
-        printf("Error: Invalid number of commas in instruction");
+        printf("Error: Invalid number of commas in instruction\n");
         return -1;
     }
     if (!validateNumberOfOperandsAgainstInstructionType(instructionType, numberOfOperands, lineNumber)) {
@@ -55,7 +55,7 @@ int parseValidateInstruction(char *instructionName, char* sentence, int lineNumb
 }
 
 
-int identifyInstructionType(char *instructionName) {
+int identifyInstructionType(const char *instructionName) {
     if (strcmp(instructionName, "mov") == 0) {
         return MOV;
     }
@@ -123,7 +123,8 @@ int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber) {
         return numberOfOperands; /*0*/
     }
     if (*sentence == ',') {
-        printf("\nError in line %d: comma before sentence - '%s'", lineNumber, sentence);
+        printf("\nError in line %d: comma before sentence - '%s'\n", lineNumber, sentence);
+        return -1;
     }
     /*Skip first operand*/
     while (*sentence != '\0' && *sentence != ',' && *sentence != ' ' && *sentence != '\t') {
@@ -143,7 +144,7 @@ int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber) {
     if (*sentence == ',') {
         sentence++;
     } else {
-        printf("\nError in line %d: Missing comma", lineNumber);
+        printf("\nError in line %d: Missing comma\n", lineNumber);
         return -1;
     }
     /*Skip whitespace after comma*/
@@ -151,11 +152,11 @@ int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber) {
         sentence++;
     }
     if (*sentence == '\0') {
-        printf("\nError in line %d: Missing argument after comma", lineNumber);
+        printf("\nError in line %d: Missing argument after comma\n", lineNumber);
         return -1;
     }
     if (*sentence == ',') {
-        printf("\nError in line %d: Multiple consecutive commas - '%s'", lineNumber, sentence);
+        printf("\nError in line %d: Multiple consecutive commas - '%s'\n", lineNumber, sentence);
         return -1;
     }
     /*Skip second operand*/
@@ -172,7 +173,7 @@ int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber) {
     if (*sentence == '\0') {
         return numberOfOperands; /*2*/
     } else {
-        printf("\nError in line %d: Extraneous text after end of command - '%s'", lineNumber, sentence);
+        printf("\nError in line %d: Extraneous text after end of command - '%s'\n", lineNumber, sentence);
         return -1;
     }
 }
@@ -180,7 +181,7 @@ int validateInstructionCommaGetNumOfOperands(char *sentence, int lineNumber) {
 
 int validateNumberOfOperandsAgainstInstructionType(InstructionType instructionType, int numberOfOperands, int lineNumber) {
     if (COMMANDS[instructionType].operandsNumber != numberOfOperands) {
-        printf("Error: Invalid number of operands - '%d', for instruction type %d at line %d.\n", numberOfOperands, instructionType, lineNumber);
+        printf("\nError in line %d: Invalid number of operands - '%d', for instruction type %d.\n", lineNumber, numberOfOperands, instructionType);
         return 0;
     }
     return 1;
@@ -246,7 +247,7 @@ int isIndexArray(char *operand) {
 
 int validateDestinationAddressingModeAgainstInstructionType(InstructionType instructionType, int addressingMode, int lineNumber) {
     if (strchr(COMMANDS[instructionType].destinationAddressingModes, addressingMode + '0') == NULL) {
-        printf("Error: Invalid addressing mode for operand at line %d.\n", lineNumber);
+        printf("\nError in line %d: Invalid destination addressing mode for operand.\n", lineNumber);
         return 0;
     }
     return 1;
@@ -256,7 +257,7 @@ int validateDestinationAddressingModeAgainstInstructionType(InstructionType inst
 int validateSourceAddressingModeAgainstInstructionType(InstructionType instructionType, int addressingMode, int lineNumber) {
     /*Adding '0' to an integer value result ASCII representation of that integer.*/
     if (strchr(COMMANDS[instructionType].sourceAddressingModes, addressingMode + '0') == NULL) { 
-        printf("Error: Invalid addressing mode for operand at line %d.\n", lineNumber);
+        printf("\nError in line %d: Invalid source addressing mode for operand.\n", lineNumber);
         return 0;
     }
     return 1;
