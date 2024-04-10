@@ -53,7 +53,7 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
     char *endptr = NULL;
     char temp;
     Entry *symbol = NULL;
-    long int value;
+    int value;
     char *dataWord = NULL;
 
     if (sentence == NULL) {
@@ -74,7 +74,7 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
 
     while (*sentence != '\0' && *sentence != '\n') {
         /* Attempt to convert the next part to a double */
-        value = strtol(sentence, &endptr, 10);
+        value = (int)strtol(sentence, &endptr, 10);
 
         /* Check if conversion was unsuccessful */
         if (endptr == sentence) {
@@ -93,16 +93,16 @@ int parseValidateDataDirective(Entry *symbolHashTable[], char *sentence, int lin
             }
         }
 
-        if (value < MIN_VALUE || value > MAX_VALUE) {
-            printf("\nError in line %d: Argument '%ld' is out of range\n", lineNumber, value);
-            return -1; /* Invalid: Out of range */
+        if (NOT isRepresentableBy14Bits(value)) {
+            printf("\nError in line %d: Argument '%d' is out of range\n", lineNumber, value);
+            return -1;
         }
         dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
         if (dataWord == NULL) {
             printf("\nError: Memory allocation failed\n");
             return -1;
         }
-        valueToDataBinaryWord((int)value, dataWord);
+        valueToDataBinaryWord(value, dataWord);
         dataWordsArray[dataCounter + numberOfValues] = dataWord;
 
 
@@ -162,6 +162,10 @@ int parseValidateStringDirective(char *sentence, int lineNumber, int dataCounter
     }
     numberOfChars = strlen(string) - 1;  /* Num of char in string without quotes with null-terminator*/
     for (i = 1; i < numberOfChars; i++) {
+        if (NOT isRepresentableBy14Bits((int)string[i])) {
+            printf("\nError in line %d: Argument '%d' is out of range\n", lineNumber, (int)string[i]);
+            return -1;
+        }
         dataWord = (char *)malloc(sizeof(char) * WORD_SIZE + 1);
         if (dataWord == NULL) {
             printf("\nError: Memory allocation failed\n");

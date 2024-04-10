@@ -5,7 +5,7 @@ int firstPass(const char *fileName) {
     size_t len;
     char *amFileName = NULL;
     FILE *amFile = NULL;
-    char line[MAX_LINE_LENGTH]; 
+    char line[MAX_LINE_LENGTH + 1]; 
     char lineCopy[MAX_LINE_LENGTH];
     char *firstWord = NULL;
     LineType firstWordType;
@@ -38,11 +38,16 @@ int firstPass(const char *fileName) {
     free(amFileName);
 
     while (fgets(line, sizeof(line), amFile) != NULL) {
+        lineNumber++;
         len = strlen(line);
+        if (len >= MAX_LINE_LENGTH) {
+            firstErrFlag = 1;
+            printf("Error: Line %d is too long.\n", lineNumber);
+        }
         if (len > 0 && line[len - 1] == '\n') {
         line[len - 1] = '\0';  /* Replace newline with null terminator */
         }
-        lineNumber++;
+        
 
         strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(lineCopy, " \t\n");
@@ -119,7 +124,7 @@ int firstPass(const char *fileName) {
     }
     fclose(amFile);
 
-    if (NOT secondErrFlag) {
+    if (NOT firstErrFlag && NOT secondErrFlag) {
         updateEntranceValue(symbolHashTable, entExtHashTable);
         createOutputFiles(fileName, instructionCounter, dataCounter, machineCodeWordsArray, dataWordsArray, entExtHashTable);
     } else {

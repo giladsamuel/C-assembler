@@ -61,6 +61,16 @@ void valueToCodeBinaryWord(int value, char binaryWord[WORD_SIZE + 1]) {
 }
 
 
+int isRepresentableBy12Bits(int value) {
+    return value >= TWELVE_BIT_MIN && value <= TWELVE_BIT_MAX;
+}
+
+
+int isRepresentableBy14Bits(int value) {
+    return value >= FOURTEEN_BIT_MIN && value <= FOURTEEN_BIT_MAX;
+}
+
+
 int instructionFirstBinaryWord(InstructionType instructionType, int sourceAddressingMode, int destinationAddressingMode, char *codeWord, char *opcode) {
     char *sourceAddressingModeBinary = NULL;
     char *destinationAddressingModeBinary = NULL;

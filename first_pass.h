@@ -12,7 +12,7 @@
 #include "output_files.h"
 
 #define MAX_LINE_LENGTH 81
-#define MAX_INSTRUCTIONS 100
+#define MAX_INSTRUCTIONS 1000
 
 #define NOT !
 

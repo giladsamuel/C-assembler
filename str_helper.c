@@ -6,7 +6,7 @@ char * crateJoinString(const char *str1, const char *str2) {
     char *result = (char *)malloc(joinStrLen * sizeof(char));
     if (result == NULL) {
         fprintf(stderr, "Memory allocation failed.\n");
-        return NULL;  /* TODO - how to exit*/
+        return NULL;
     }
     strcpy(result, str1);
     strcat(result, str2);

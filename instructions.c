@@ -218,7 +218,7 @@ int identifyAddressingMode(char *operand, int lineNumber) {
     if (operand[0] == '#') {
         return IMMEDIATE;
     }
-    if (operand[strlen(operand) - 1] == ']') {
+    if (isIndexArray(operand)) {
         return INDEX_ARRAY;
     }
     if (isRegister(operand) != -1) {
@@ -234,6 +234,15 @@ int isRegister(char *operand) {
     }
     return -1;
 }
+
+
+int isIndexArray(char *operand) {
+    if(operand[strlen(operand) - 1] == ']' && strchr(operand, '[') != NULL && strchr(strchr(operand, '['), ' ') == NULL) {
+        return 1;
+    }
+    return 0;
+}
+
 
 int validateDestinationAddressingModeAgainstInstructionType(InstructionType instructionType, int addressingMode, int lineNumber) {
     if (strchr(COMMANDS[instructionType].destinationAddressingModes, addressingMode + '0') == NULL) {
@@ -314,7 +323,7 @@ int parseInstructionToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[],
 
 
 
-    return numberOfWords; /*TODO - Change to error handel*/
+    return numberOfWords;
 }
 
 
@@ -444,7 +453,11 @@ int immediateToBinary(Entry *symbolHashTable[], char *operand, int instructionCo
         }
         val = symbol->value;
     }
-
+    if (!isRepresentableBy12Bits(val)) {
+        printf("\nError in line %d: Immediate value is out of range - %d\n", lineNumber, val);
+        free(codeWord);
+        return 1;
+    }
     valueToCodeBinaryWord(val, codeWord);
     strcat(codeWord, ABSOLUTE_ADD);
     machineCodeWordsArray[instructionCounter + 1] = codeWord;
@@ -494,7 +507,7 @@ int directToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *ope
 
 int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char *operand, int instructionCounter, char *machineCodeWordsArray[], int lineNumber) {
     char *codeWord = NULL;
-    char *arrayName = NULL;  /*TODO: validate array format in first pass*/
+    char *arrayName = NULL;
     char *indexStr = NULL;
     Entry *arraySymbolEntry = NULL;
     Entry *arrayEntExtEntry = NULL;
@@ -552,6 +565,11 @@ int indexArrayToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[], char 
             return 1;
         }
         index = symbol->value;
+    }
+    if (!isRepresentableBy12Bits(index)) {
+        printf("\nError in line %d: Immediate value is out of range - %d\n", lineNumber, index);
+        free(codeWord);
+        return 1;
     }
     valueToCodeBinaryWord(index, codeWord);
     strcat(codeWord, ABSOLUTE_ADD);

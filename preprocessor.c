@@ -9,14 +9,16 @@ int preprocessMacros(const char* fileName) {
     char *amFileName = NULL;
     FILE *asFile = NULL;
     FILE *amFile = NULL;
-    char line[MAX_LINE_LENGTH]; 
-    char lineCopy[MAX_LINE_LENGTH];
+    char line[MAX_LINE_LENGTH + 1]; 
+    char lineCopy[MAX_LINE_LENGTH + 1];
     char *firstWord = NULL;
     char *macroName = NULL;
     Entry *macroHashTable[TABLE_SIZE] = {NULL};
     Entry *macroEntry = NULL;
     Entry *newMacroEntry = NULL;
     int macroFoundFlag = 0;
+    int lineNumber = 0;
+    int macroErrFlag = 0;
 
     asFileName = crateJoinString(fileName, ".as");
     amFileName = crateJoinString(fileName, ".am");
@@ -38,6 +40,7 @@ int preprocessMacros(const char* fileName) {
     free(asFileName);
 
     while (fgets(line, sizeof(line), asFile) != NULL) {
+        lineNumber++;
         strncpy(lineCopy, line, sizeof(lineCopy));
         firstWord = strtok(lineCopy, " \t\n");
         if (firstWord == NULL) {
@@ -53,8 +56,15 @@ int preprocessMacros(const char* fileName) {
         if (strcmp(firstWord, "mcr") == 0) {
             macroFoundFlag = 1;
             macroName = strtok(NULL, " \t\n");
-            newMacroEntry = insertMacroEntry(macroHashTable ,macroName);
-            if (newMacroEntry == NULL) {
+            if (!isValidName(macroHashTable, macroName, lineNumber)) {
+                printf("ERROR in macro name\n");
+                freeTable(macroHashTable);
+                fclose(asFile);
+                fclose(amFile);
+                return 0;
+            }
+            newMacroEntry = insertMacroEntry(macroHashTable, macroName);
+            if (newMacroEntry == NULL) {  /*memory allocation fail*/
                 freeTable(macroHashTable);
                 fclose(asFile);
                 fclose(amFile);
