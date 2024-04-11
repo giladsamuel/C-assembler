@@ -265,7 +265,7 @@ int isValidName(Entry *hashTable[], const char *name, int lineNumber) {
     if (name == NULL) {
         return 0;
     }
-    if (strlen(name) > 31) {
+    if (strlen(name) > MAX_NAME_LENGTH) {
         printf("\nError in line %d: Name '%s' is too long.\n", lineNumber, name);
         return 0;
     }

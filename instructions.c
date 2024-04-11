@@ -199,12 +199,12 @@ int validateInstructionOperands(InstructionType instructionType, char *sentence,
         return 1;
 
     } else if (numberOfOperands == 1) {
-        *destinationAddressingMode = identifyAddressingMode(firstOperand, lineNumber);
+        *destinationAddressingMode = identifyAddressingMode(firstOperand);
         return validateDestinationAddressingModeAgainstInstructionType(instructionType, *destinationAddressingMode, lineNumber);
 
     } else if (numberOfOperands == 2) {
-        *sourceAddressingMode = identifyAddressingMode(firstOperand, lineNumber);
-        *destinationAddressingMode = identifyAddressingMode(secondOperand, lineNumber);
+        *sourceAddressingMode = identifyAddressingMode(firstOperand);
+        *destinationAddressingMode = identifyAddressingMode(secondOperand);
         return (validateSourceAddressingModeAgainstInstructionType(instructionType, *sourceAddressingMode, lineNumber) &&
                 validateDestinationAddressingModeAgainstInstructionType(instructionType, *destinationAddressingMode, lineNumber));
     }
@@ -212,7 +212,7 @@ int validateInstructionOperands(InstructionType instructionType, char *sentence,
 }
 
 
-int identifyAddressingMode(char *operand, int lineNumber) {
+int identifyAddressingMode(char *operand) {
     if (operand == NULL) {
         return -1;
     }
@@ -322,8 +322,6 @@ int parseInstructionToBinary(Entry *symbolHashTable[], Entry *entExtHashTable[],
 
     numberOfWords = getInstructionBinaryWords(symbolHashTable, entExtHashTable, numberOfOperands, firstOperand, secondOperand, sourceAddressingMode, destinationAddressingMode, instructionCounter, machineCodeWordsArray, lineNumber);
 
-
-
     return numberOfWords;
 }
 
@@ -337,12 +335,12 @@ int getInstructionOperands(char **firstOperandP, char **secondOperandP, char *se
         return 1;
 
     } else if (numberOfOperands == 1) {
-        *destinationAddressingMode = identifyAddressingMode(*firstOperandP, -1);
+        *destinationAddressingMode = identifyAddressingMode(*firstOperandP);
         return 1;
 
     } else if (numberOfOperands == 2) {
-        *sourceAddressingMode = identifyAddressingMode(*firstOperandP, -1);
-        *destinationAddressingMode = identifyAddressingMode(*secondOperandP, -1);
+        *sourceAddressingMode = identifyAddressingMode(*firstOperandP);
+        *destinationAddressingMode = identifyAddressingMode(*secondOperandP);
         return 1;
     }
     return -1;

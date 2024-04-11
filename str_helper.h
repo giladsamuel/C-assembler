@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define MAX_NAME_LENGTH 31
 
 /**
  * Creates a new string by joining two input strings.

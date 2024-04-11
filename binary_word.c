@@ -1,6 +1,5 @@
 #include "binary_word.h"
 
-char *registerNumberToBinary(int registerNum);
 
 
 /* 14-bit value representation*/

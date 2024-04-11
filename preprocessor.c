@@ -1,6 +1,28 @@
 #include "preprocessor.h"
 
+/**
+ * @brief Adds a line to a macro entry.
+ * 
+ * This function appends a line of text to the data of a macro entry. If the macro entry's data is NULL, 
+ * it allocates memory for the line and assigns it to the data. If the memory allocation fails, it prints 
+ * an error message and returns NULL. If the macro entry's data is not NULL, it concatenates the line with 
+ * the existing data using the crateJoinString() function, frees the old data, and assigns the new concatenated 
+ * string to the data.
+ * 
+ * @param macroEntry The macro entry to add the line to.
+ * @param line The line to be added.
+ * @return The updated data of the macro entry, or NULL if memory allocation fails.
+ */
 char *addMacroLine(Entry *macroEntry, const char *line);
+
+
+/**
+ * Inserts a macro entry into the hash table.
+ *
+ * @param ht The hash table to insert the entry into.
+ * @param name The name of the macro.
+ * @return The updated hash table with the inserted entry.
+ */
 Entry *insertMacroEntry(Entry *ht[TABLE_SIZE], const char *name);
 
 
@@ -126,7 +148,7 @@ int isValidMacroName(Entry *hashTable[], const char *name, int lineNumber) {
     if (name == NULL) {
         return 0;
     }
-    if (strlen(name) > 31) {
+    if (strlen(name) > MAX_NAME_LENGTH) {
         printf("\nError in line %d: Macro name '%s' is too long.\n", lineNumber, name);
         return 0;
     }

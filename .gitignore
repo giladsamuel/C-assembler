@@ -7,6 +7,5 @@ test.*
 compiler.h
 *.am
 *.ob
-*.as
 *.ext
 *.ent

@@ -1,7 +1,27 @@
 #include "hash_table.h"
 
-
+/**
+ * @brief Calculates the hash value for a given key using the hash function.
+ *
+ * This function calculates the hash value for a given key using the hash function.
+ * The hash value is used to determine the index in the hash table where the key-value pair will be stored.
+ *
+ * @param key The key for which the hash value needs to be calculated.
+ * @return The calculated hash value.
+ */
 unsigned int hashFunction(const char* key);
+
+
+/**
+ * Creates a new entry for a hash table.
+ *
+ * @param name The name of the entry.
+ * @param property The property of the entry.
+ * @param value The value of the entry.
+ * @param data The data associated with the entry.
+ * @return A pointer to the newly created entry, or NULL if memory allocation failed.
+ */
+
 Entry *createEntry(const char *name, int property, int value, const char *data);
 
 
